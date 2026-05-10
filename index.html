@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Surprise! 🎂✨</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&family=Sacramento&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Animated Gradient Background Orbs -->
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+
+    <!-- Background Decor Layer -->
+    <div id="confetti-container"></div>
+    <div id="hearts-container"></div>
+
+    <div class="main-container">
+        <!-- Visual Glow Effect -->
+        <div class="heart-glow"></div>
+
+        <div class="glass-card" id="card">
+            <!-- Progress Tracker -->
+            <div class="progress-container">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+
+            <!-- Dynamic Content Area -->
+            <div id="content">
+                <!-- Content will be injected by script.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Assets -->
+    <audio id="bg-music" loop>
+        <source src="https://raw.githubusercontent.com/Adit-Kumbhare/Happy-Birthday/main/happy-birthday.mp3"
+            type="audio/mpeg">
+    </audio>
+    <audio id="click-sound">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>

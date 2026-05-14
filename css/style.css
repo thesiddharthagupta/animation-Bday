@@ -869,12 +869,11 @@ button:active {
 
 .result-area {
     margin-top: 35px;
-    display: none;
     text-align: center;
     padding: 25px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 20px;
-    border: 1px dashed var(--primary-rose);
+    border: 1px dashed var(--primary);
     animation: slideUp 0.5s ease-out;
 }
 

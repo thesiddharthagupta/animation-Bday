@@ -656,10 +656,63 @@ button:active {
     transform: scale(1.05);
 }
 
-.glow-btn {
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
+/* Layout Utilities */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 600px) {
+    .grid-2 { grid-template-columns: 1fr; }
+}
+
+.input-section {
+    margin-bottom: 35px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.input-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.theme-grid, .animal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.header-section {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.header-section h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 15px;
+}
+
+.creator-container {
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 0 20px;
 }
 
 .glow-btn::after {

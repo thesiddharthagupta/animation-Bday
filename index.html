@@ -1,61 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Birthday Surprise! 🎂✨</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&family=Sacramento&display=swap"
-        rel="stylesheet">
+    <title>Birthday Magic ✨ | AI Surprise Generator</title>
     <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Check for ID and redirect if needed
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        if (id) {
+            window.location.href = `preview.html?id=${id}`;
+        } else {
+            window.location.href = 'create.html';
+        }
+    </script>
 </head>
-
-<body data-theme="cute">
-    <div class="bg-orb bg-orb-1"></div>
-    <div class="bg-orb bg-orb-2"></div>
-    <div class="bg-orb bg-orb-3"></div>
-    <div id="particles-container" class="bg-particles"></div>
-    <div id="confetti-container"></div>
-    <div id="hearts-container"></div>
-
-    <div class="main-container">
-        <!-- 404 / Error State -->
-        <div id="error-view" class="glass-card hidden" style="padding: 60px;">
-            <h1 style="font-size: 4rem;">🚫</h1>
-            <h2>Surprise Not Found</h2>
-            <p style="color: var(--text-secondary); margin: 20px 0;">This link might be broken or expired.</p>
-            <a href="create.html" class="social-btn" style="background: var(--primary); display: inline-flex; justify-content: center;">Create Your Own Magic ✨</a>
-        </div>
-
-        <!-- Viewer View -->
-        <div id="viewer-view" class="hidden">
-            <div class="heart-glow"></div>
-            <div class="glass-card" id="card">
-                <div class="progress-container">
-                    <div class="progress-bar" id="progress"></div>
-                </div>
-                <div id="content">
-                    <!-- Dynamic Content -->
-                    <div class="loader-container" id="main-loader">
-                        <div class="loader"></div>
-                        <p>Loading your surprise...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Audio Assets -->
-    <audio id="bg-music" loop></audio>
-    <audio id="click-sound">
-        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
-    </audio>
-
-    <!-- Supabase Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-config.js"></script>
-    <script src="js/script.js"></script>
+<body style="background: #111; display: flex; align-items: center; justify-content: center; height: 100vh;">
+    <div class="loader"></div>
 </body>
-
 </html>

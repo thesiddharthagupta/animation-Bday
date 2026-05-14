@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Surprise! 🎂✨</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&family=Sacramento&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body data-theme="cute">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+    <div id="particles-container" class="bg-particles"></div>
+    <div id="confetti-container"></div>
+
+    <div class="main-container">
+        <!-- Error State -->
+        <div id="error-view" class="glass-card hidden">
+            <h1 style="font-size: 3rem;">🎁</h1>
+            <h2>Surprise Not Found!</h2>
+            <p style="color: var(--text-secondary); margin: 15px 0;">This surprise link may have expired or is invalid.</p>
+            <a href="create.html" class="social-btn" style="background: var(--primary); display: inline-flex; justify-content: center; text-decoration: none;">Create a New Surprise ✨</a>
+        </div>
+
+        <!-- Viewer View -->
+        <div id="viewer-view" class="hidden">
+            <div class="heart-glow"></div>
+            <div class="glass-card" id="card">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress"></div>
+                </div>
+                <div id="content">
+                    <div class="loader-container">
+                        <div class="loader"></div>
+                        <p>Opening your gift...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio -->
+    <audio id="bg-music" loop></audio>
+    <audio id="click-sound">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/app.js"></script>
+    <script src="js/preview.js"></script>
+</body>
+
+</html>

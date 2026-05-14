@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Birthday Surprise Generator 🎂✨</title>
-    <!-- Google Fonts -->
+    <title>Birthday Surprise! 🎂✨</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&family=Sacramento&display=swap"
         rel="stylesheet">
@@ -13,149 +12,49 @@
 </head>
 
 <body data-theme="cute">
-    <!-- Animated Gradient Background Orbs -->
     <div class="bg-orb bg-orb-1"></div>
     <div class="bg-orb bg-orb-2"></div>
     <div class="bg-orb bg-orb-3"></div>
-    
-    <!-- Floating Background Particles -->
     <div id="particles-container" class="bg-particles"></div>
-
-    <!-- Background Decor Layer (for Viewer) -->
     <div id="confetti-container"></div>
     <div id="hearts-container"></div>
 
-    <!-- 1. CREATOR DASHBOARD VIEW -->
-    <div id="creator-view" class="main-container creator-container">
-        <div class="glass-card creator-card">
-            <header class="creator-header">
-                <h1>Create a Magical Birthday Surprise ✨</h1>
-                <p>Enter details and let the app generate a personalized birthday experience 💖</p>
-            </header>
-
-            <form id="generator-form">
-                <!-- Section 1: Basic Info -->
-                <div class="input-section">
-                    <h3>1. Basic Info</h3>
-                    <div class="grid-2">
-                        <div class="input-group">
-                            <label>Birthday Person Name</label>
-                            <input type="text" id="name" placeholder="e.g. Aarav" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Nickname</label>
-                            <input type="text" id="nickname" placeholder="e.g. Aaru">
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <label>Relationship</label>
-                        <select id="relationship">
-                            <option value="friend">Friend</option>
-                            <option value="bestie">Best Friend</option>
-                            <option value="girlfriend">Girlfriend</option>
-                            <option value="boyfriend">Boyfriend</option>
-                            <option value="sister">Sister</option>
-                            <option value="brother">Brother</option>
-                            <option value="crush">Crush</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Section 2: Message -->
-                <div class="input-section">
-                    <h3>2. Message Section</h3>
-                    <div class="input-group">
-                        <label>Write something sweet about them...</label>
-                        <textarea id="description" placeholder="Funny, caring, always makes me smile..."></textarea>
-                    </div>
-                </div>
-
-                <!-- Section 3: Theme Selector -->
-                <div class="input-section">
-                    <h3>3. Select Vibe/Theme</h3>
-                    <div class="theme-grid">
-                        <div class="theme-card active" data-theme="cute">Cute 🌸</div>
-                        <div class="theme-card" data-theme="romantic">Romantic ❤️</div>
-                        <div class="theme-card" data-theme="funny">Funny 😂</div>
-                        <div class="theme-card" data-theme="elegant">Elegant ✨</div>
-                        <div class="theme-card" data-theme="anime">Anime 🎀</div>
-                    </div>
-                </div>
-
-                <!-- Section 4: Animal Selector -->
-                <div class="input-section">
-                    <h3>4. Favorite Animal</h3>
-                    <div class="animal-grid">
-                        <div class="animal-card active" data-animal="cat">Cat 🐱</div>
-                        <div class="animal-card" data-animal="bunny">Bunny 🐰</div>
-                        <div class="animal-card" data-animal="panda">Panda 🐼</div>
-                        <div class="animal-card" data-animal="dog">Dog 🐶</div>
-                        <div class="animal-card" data-animal="bear">Bear 🐻</div>
-                    </div>
-                </div>
-
-                <!-- Section 5: Uploads -->
-                <div class="input-section">
-                    <h3>5. Visuals & Music</h3>
-                    <div class="grid-2">
-                        <div class="input-group">
-                            <label>Photo URL (Optional)</label>
-                            <input type="text" id="image-url" placeholder="Paste image link">
-                        </div>
-                        <div class="input-group">
-                            <label>Music URL (.mp3)</label>
-                            <input type="text" id="music-url" placeholder="Paste mp3 link">
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="generate-btn glow-btn">Generate Birthday Magic 🎂✨</button>
-            </form>
-
-            <div id="result-area" class="result-area hidden">
-                <h3>Magic Generated! 🔗</h3>
-                <div class="link-box" id="share-link"></div>
-                <button id="copy-btn" class="copy-btn">Copy Link</button>
-                <button id="preview-btn" class="preview-btn">Preview Surprise 👁️</button>
-            </div>
+    <div class="main-container">
+        <!-- 404 / Error State -->
+        <div id="error-view" class="glass-card hidden" style="padding: 60px;">
+            <h1 style="font-size: 4rem;">🚫</h1>
+            <h2>Surprise Not Found</h2>
+            <p style="color: var(--text-secondary); margin: 20px 0;">This link might be broken or expired.</p>
+            <a href="create.html" class="social-btn" style="background: var(--primary); display: inline-flex; justify-content: center;">Create Your Own Magic ✨</a>
         </div>
-    </div>
 
-    <!-- 2. LOADING SCREEN -->
-    <div id="loading-screen" class="main-container hidden">
-        <div class="glass-card loading-card">
-            <div class="loader"></div>
-            <h2>Generating Magic...</h2>
-            <div class="progress-outer">
-                <div class="progress-inner" id="gen-progress"></div>
-            </div>
-            <p id="loading-text">Crafting personalized messages...</p>
-        </div>
-    </div>
-
-    <!-- 3. BIRTHDAY VIEWER VIEW -->
-    <div id="viewer-view" class="main-container hidden">
-        <div class="heart-glow"></div>
-        <div class="glass-card" id="card">
-            <div class="progress-container">
-                <div class="progress-bar" id="progress"></div>
-            </div>
-            <div id="content">
-                <!-- Injected by script.js -->
+        <!-- Viewer View -->
+        <div id="viewer-view" class="hidden">
+            <div class="heart-glow"></div>
+            <div class="glass-card" id="card">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress"></div>
+                </div>
+                <div id="content">
+                    <!-- Dynamic Content -->
+                    <div class="loader-container" id="main-loader">
+                        <div class="loader"></div>
+                        <p>Loading your surprise...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Audio Assets -->
-    <audio id="bg-music" loop>
-        <source src="https://raw.githubusercontent.com/Adit-Kumbhare/Happy-Birthday/main/happy-birthday.mp3"
-            type="audio/mpeg">
-    </audio>
+    <audio id="bg-music" loop></audio>
     <audio id="click-sound">
         <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
     </audio>
 
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
     <script src="js/script.js"></script>
 </body>
 

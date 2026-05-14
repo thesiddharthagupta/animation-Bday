@@ -1,227 +1,93 @@
 /**
- * AI Birthday Surprise Generator - Unified App
- * Handlers: Dashboard UI, Story Generation, and Playback Engine.
+ * Viewer Logic - Supabase Version
  */
 
-// --- Global State ---
 let pages = [];
 let currentIdx = 0;
 let musicOn = false;
 
-// --- DOM Elements (Initialized in init) ---
-let creatorView, viewerView, loadingScreen, contentArea, progressBar, bgMusic, clickSfx;
+let viewerView, errorView, contentArea, progressBar, bgMusic, clickSfx;
 
-// --- Initialization ---
-function init() {
-    // Initialize elements
-    creatorView = document.getElementById('creator-view');
+async function init() {
     viewerView = document.getElementById('viewer-view');
-    loadingScreen = document.getElementById('loading-screen');
+    errorView = document.getElementById('error-view');
     contentArea = document.getElementById('content');
     progressBar = document.getElementById('progress');
     bgMusic = document.getElementById('bg-music');
     clickSfx = document.getElementById('click-sound');
 
     const urlParams = new URLSearchParams(window.location.search);
-    const data = urlParams.get('d');
-    const theme = urlParams.get('t');
+    const id = urlParams.get('id');
 
-    console.log("App Init - Mode:", data ? "Viewer" : "Creator");
-
-    if (data) {
-        // Mode: VIEWER
-        creatorView.classList.add('hidden');
-        viewerView.classList.remove('hidden');
-        if (theme) document.body.setAttribute('data-theme', theme);
-        loadViewer(data);
+    if (id) {
+        await loadFromSupabase(id);
     } else {
-        // Mode: CREATOR
-        creatorView.classList.remove('hidden');
-        viewerView.classList.add('hidden');
-        setupDashboard();
+        // No ID provided, redirect to creator
+        window.location.href = 'create.html';
     }
 
     createFloatingDecor();
     createParticles();
 }
 
-// --- Background Magic ---
-function createParticles() {
-    const container = document.getElementById('particles-container');
-    const particleCount = 20;
-    for (let i = 0; i < particleCount; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        const size = Math.random() * 8 + 4;
-        p.style.width = `${size}px`;
-        p.style.height = `${size}px`;
-        p.style.left = `${Math.random() * 100}vw`;
-        p.style.top = `${Math.random() * 100}vh`;
-        p.style.animationDelay = `${Math.random() * 10}s`;
-        p.style.animationDuration = `${Math.random() * 10 + 10}s`;
-        container.appendChild(p);
-    }
-}
-
-// --- Dashboard Logic ---
-function setupDashboard() {
-    const form = document.getElementById('generator-form');
-    const themeCards = document.querySelectorAll('.theme-card');
-    const animalCards = document.querySelectorAll('.animal-card');
-
-    // Theme Selection
-    themeCards.forEach(card => {
-        card.onclick = () => {
-            themeCards.forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-            document.body.setAttribute('data-theme', card.dataset.theme);
-        };
-    });
-
-    // Animal Selection
-    animalCards.forEach(card => {
-        card.onclick = () => {
-            animalCards.forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-        };
-    });
-
-    // Form Submission
-    form.onsubmit = async (e) => {
-        e.preventDefault();
-        console.log("Form submitted!");
-
-        try {
-            const nameEl = document.getElementById('name');
-            const themeEl = document.querySelector('.theme-card.active');
-            const animalEl = document.querySelector('.animal-card.active');
-
-            if (!nameEl || !nameEl.value) {
-                alert("Please enter a name first! ✨");
-                return;
-            }
-
-            const data = {
-                name: nameEl.value,
-                nickname: document.getElementById('nickname').value || nameEl.value,
-                rel: document.getElementById('relationship').value,
-                desc: document.getElementById('description').value,
-                theme: themeEl ? themeEl.dataset.theme : 'cute',
-                animal: animalEl ? animalEl.dataset.animal : 'cat',
-                img: document.getElementById('image-url').value,
-                music: document.getElementById('music-url').value
-            };
-
-            await startGenerationFlow(data);
-        } catch (err) {
-            console.error("Submit handler error:", err);
-            alert("Error: " + err.message);
-        }
-    };
-}
-
-async function startGenerationFlow(data) {
-    console.log("Starting Generation Flow...", data);
-    
-    if (!creatorView || !loadingScreen) {
-        console.error("Critical UI elements missing!");
-        return;
-    }
-
-    creatorView.classList.add('hidden');
-    loadingScreen.classList.remove('hidden');
-    
-    const progressInner = document.getElementById('gen-progress');
-    const loadingText = document.getElementById('loading-text');
-    const steps = [
-        "Analyzing relationships...",
-        "Crafting cute messages...",
-        "Selecting the perfect vibe...",
-        "Generating magic link...",
-        "Almost ready! ✨"
-    ];
-
-    for (let i = 0; i < steps.length; i++) {
-        if (loadingText) loadingText.innerText = steps[i];
-        if (progressInner) progressInner.style.width = `${((i + 1) / steps.length) * 100}%`;
-        await new Promise(r => setTimeout(r, 600));
-    }
-
+async function loadFromSupabase(id) {
     try {
-        const generatedPages = generateStory(data);
-        const json = JSON.stringify(generatedPages);
-        
-        // Robust Unicode Encoding
-        const encoded = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (match, p1) => {
-            return String.fromCharCode('0x' + p1);
-        }));
-        
-        // Safer URL construction
-        const currentUrl = window.location.href.split('?')[0];
-        const finalUrl = `${currentUrl}?d=${encodeURIComponent(encoded)}&t=${data.theme}`;
-        
-        console.log("Generated Link:", finalUrl);
-
-        loadingScreen.classList.add('hidden');
-        creatorView.classList.remove('hidden');
-        
-        const resultArea = document.getElementById('result-area');
-        const shareLink = document.getElementById('share-link');
-        
-        if (resultArea && shareLink) {
-            resultArea.classList.remove('hidden');
-            shareLink.innerText = finalUrl;
-            setTimeout(() => {
-                resultArea.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
+        if (typeof _supabase === 'undefined' || SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+            throw new Error("Supabase not configured");
         }
 
-        document.getElementById('copy-btn').onclick = () => {
-            navigator.clipboard.writeText(finalUrl);
-            document.getElementById('copy-btn').innerText = "Copied! ✅";
-            setTimeout(() => document.getElementById('copy-btn').innerText = "Copy Link", 2000);
-        };
+        const { data: record, error } = await _supabase
+            .from('surprises')
+            .select('data')
+            .eq('id', id)
+            .single();
 
-        document.getElementById('preview-btn').onclick = () => {
-            window.location.href = finalUrl;
-        };
-    } catch (err) {
-        console.error("Generation failed:", err);
-        alert("Generation failed: " + err.message);
-        loadingScreen.classList.add('hidden');
-        creatorView.classList.remove('hidden');
+        if (error || !record) throw new Error("Surprise not found");
+
+        const data = record.data;
+        document.body.setAttribute('data-theme', data.theme);
+        
+        // Generate Story Pages
+        pages = generateStory(data);
+        
+        if (data.music) bgMusic.src = data.music;
+        else bgMusic.src = "https://raw.githubusercontent.com/Adit-Kumbhare/Happy-Birthday/main/happy-birthday.mp3";
+
+        viewerView.classList.remove('hidden');
+        renderPage(0);
+    } catch (e) {
+        console.error(e);
+        errorView.classList.remove('hidden');
     }
 }
 
 function generateStory(d) {
-    // Assets & Templates
     const animalAssets = {
         cat: "assets/cat_gift.png",
         bunny: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v8xKVYYZ4H6Y7tD59N/giphy.gif",
-        panda: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/7NoNw4pMNTvgc/giphy.gif",
+        panda: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/7NoNw4pMNTvgc/giphy.gif",
         dog: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v8xKVYYZ4H6Y7tD59N/giphy.gif",
         bear: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v8xKVYYZ4H6Y7tD59N/giphy.gif"
     };
 
     const wishTemplates = {
-        friend: "Happy Birthday to a wonderful friend! 🎂 You make every moment brighter and I'm so glad to have you in my life. Cheers to another year of great memories! 🥂✨",
-        bestie: "Happy Birthday Bestie! 🎈 You're more than just a friend; you're family. Thank you for all the late-night laughs and for always having my back. Love you! 💖👯‍♀️",
-        girlfriend: "Happy Birthday to my beautiful queen! 🌹 You are my world and my greatest joy. I'm so lucky to have you by my side. Let's make this day as perfect as you are! ❤️✨",
-        boyfriend: "Happy Birthday to my amazing man! 🎂 You're my rock and my best friend. Thank you for making every day an adventure. I love you to the moon and back! 🌙💖",
-        sister: "Happy Birthday to the best sister ever! 🌸 We've shared so many secrets and memories. I couldn't have asked for a better partner in crime. Have the best day! 💖✨",
-        brother: "Happy Birthday Bro! 🎂 You've always been there to guide and support me. Thanks for being the coolest brother anyone could ask for. Let's celebrate! 🥳🔥",
-        crush: "Happy Birthday! 🎂 I wanted to make something special just for you. You have a way of making everything better, and I hope your day is as wonderful as you are! ✨😊",
-        other: "Happy Birthday! 🎂 Wishing you a day filled with love, laughter, and all your favorite things. May this year be your best one yet! 🎈✨"
+        friend: "Happy Birthday to a wonderful friend! 🎂",
+        bestie: "Happy Birthday Bestie! 🎈 You're family. Love you! 💖",
+        girlfriend: "Happy Birthday to my beautiful queen! 🌹 Let's make this day perfect! ❤️✨",
+        boyfriend: "Happy Birthday to my amazing man! 🎂 I love you to the moon and back! 🌙💖",
+        sister: "Happy Birthday to the best sister ever! 🌸 Partner in crime! 💖✨",
+        brother: "Happy Birthday Bro! 🎂 Let's celebrate! 🥳🔥",
+        other: "Happy Birthday! 🎂 May this year be your best one yet! 🎈✨"
     };
 
     const mainImg = d.img || animalAssets[d.animal] || animalAssets.cat;
     const personalWish = d.wish || wishTemplates[d.rel] || wishTemplates.other;
 
-    const story = [
+    return [
         {
             id: 1,
             image: animalAssets[d.animal] || animalAssets.cat,
-            text: `HEY ${d.name.toUpperCase()} 👀\nREADY FOR SOMETHING SPECIAL?`,
+            text: `HEY ${d.name.toUpperCase()} 👀\nREADY FOR A SURPRISE?`,
             buttons: [{ text: "YES!", action: "next" }, { text: "NO..", action: "dodge", id: "no-btn" }]
         },
         {
@@ -232,54 +98,19 @@ function generateStory(d) {
         },
         {
             id: 3,
-            image: mainImg,
-            text: `THE WORLD IS BETTER WITH YOUR SMILE ✨`,
-            buttons: [{ text: "Aww! 🌸", action: "next" }]
-        },
-        {
-            id: 4,
             type: "message",
             content: personalWish
         },
         {
-            id: 5,
+            id: 4,
             type: "post",
             user: `${d.nickname}'s Special Day ✨`,
             image: mainImg,
             likes: "1,245,678",
-            caption: `<b>Happy Birthday ${d.name}!</b> 🎂 Wishing you the most magical day ever. You are truly one in a million. 💖🌸✨`,
-            music: d.music,
+            caption: `<b>Happy Birthday ${d.name}!</b> 🎂 💖🌸✨`,
             final: true
         }
     ];
-
-    return story;
-}
-
-// --- Viewer Logic ---
-function loadViewer(data) {
-    try {
-        console.log("Loading Viewer with data length:", data.length);
-        const base64 = data.replace(/ /g, '+');
-        
-        // Robust Unicode Decoding
-        const decodedStr = decodeURIComponent(atob(base64).split('').map((c) => {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        
-        const decoded = JSON.parse(decodedStr);
-        console.log("Viewer Data Decoded:", decoded);
-        
-        if (Array.isArray(decoded)) {
-            pages = decoded;
-            const finalPage = pages.find(p => p.final);
-            if (finalPage && finalPage.music) bgMusic.src = finalPage.music;
-            renderPage(0);
-        }
-    } catch (e) {
-        console.error("Viewer error:", e);
-        alert("Failed to load the surprise. The link might be broken.");
-    }
 }
 
 function renderPage(idx) {
@@ -330,27 +161,22 @@ function renderStandard(page) {
 function renderMessage(page) {
     const container = document.createElement('div');
     container.className = 'message-slide';
-    
     const p = document.createElement('p');
     p.id = 'typewriter-text';
     container.appendChild(p);
-    
     const btn = document.createElement('button');
     btn.innerText = "Next 🌸";
     btn.style.opacity = '0';
     btn.onclick = () => { playSfx(); renderPage(++currentIdx); };
     container.appendChild(btn);
-    
     contentArea.appendChild(container);
 
-    // Typewriter Logic
     let i = 0;
-    const speed = 40;
     function typeWriter() {
         if (i < page.content.length) {
             p.innerText += page.content.charAt(i);
             i++;
-            setTimeout(typeWriter, speed);
+            setTimeout(typeWriter, 40);
         } else {
             btn.style.opacity = '1';
             btn.style.transition = 'opacity 0.5s ease';
@@ -378,7 +204,6 @@ function renderPost(page) {
     startConfetti();
 }
 
-// --- Utils ---
 function dodge(btn) {
     if (btn.parentElement !== document.body) document.body.appendChild(btn);
     const x = Math.random() * (window.innerWidth - btn.offsetWidth - 20);
@@ -402,6 +227,23 @@ function createFloatingDecor() {
         document.body.appendChild(item);
         setTimeout(() => item.remove(), 12000);
     }, 1000);
+}
+
+function createParticles() {
+    const container = document.getElementById('particles-container');
+    if(!container) return;
+    for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 8 + 4;
+        p.style.width = `${size}px`;
+        p.style.height = `${size}px`;
+        p.style.left = `${Math.random() * 100}vw`;
+        p.style.top = `${Math.random() * 100}vh`;
+        p.style.animationDelay = `${Math.random() * 10}s`;
+        p.style.animationDuration = `${Math.random() * 10 + 10}s`;
+        container.appendChild(p);
+    }
 }
 
 function startConfetti() {

@@ -194,15 +194,28 @@ async function startGenerationFlow(data) {
 }
 
 function generateStory(d) {
+    // Assets & Templates
     const animalAssets = {
         cat: "assets/cat_gift.png",
         bunny: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v8xKVYYZ4H6Y7tD59N/giphy.gif",
-        panda: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/7NoNw4pMNTvgc/giphy.gif",
+        panda: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/7NoNw4pMNTvgc/giphy.gif",
         dog: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v8xKVYYZ4H6Y7tD59N/giphy.gif",
         bear: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v8xKVYYZ4H6Y7tD59N/giphy.gif"
     };
 
+    const wishTemplates = {
+        friend: "Happy Birthday to a wonderful friend! 🎂 You make every moment brighter and I'm so glad to have you in my life. Cheers to another year of great memories! 🥂✨",
+        bestie: "Happy Birthday Bestie! 🎈 You're more than just a friend; you're family. Thank you for all the late-night laughs and for always having my back. Love you! 💖👯‍♀️",
+        girlfriend: "Happy Birthday to my beautiful queen! 🌹 You are my world and my greatest joy. I'm so lucky to have you by my side. Let's make this day as perfect as you are! ❤️✨",
+        boyfriend: "Happy Birthday to my amazing man! 🎂 You're my rock and my best friend. Thank you for making every day an adventure. I love you to the moon and back! 🌙💖",
+        sister: "Happy Birthday to the best sister ever! 🌸 We've shared so many secrets and memories. I couldn't have asked for a better partner in crime. Have the best day! 💖✨",
+        brother: "Happy Birthday Bro! 🎂 You've always been there to guide and support me. Thanks for being the coolest brother anyone could ask for. Let's celebrate! 🥳🔥",
+        crush: "Happy Birthday! 🎂 I wanted to make something special just for you. You have a way of making everything better, and I hope your day is as wonderful as you are! ✨😊",
+        other: "Happy Birthday! 🎂 Wishing you a day filled with love, laughter, and all your favorite things. May this year be your best one yet! 🎈✨"
+    };
+
     const mainImg = d.img || animalAssets[d.animal] || animalAssets.cat;
+    const personalWish = d.wish || wishTemplates[d.rel] || wishTemplates.other;
 
     const story = [
         {
@@ -226,7 +239,7 @@ function generateStory(d) {
         {
             id: 4,
             type: "message",
-            content: `Happy Birthday ${d.nickname}! 🎂\n\nYou deserve a day as wonderful as you are. Thank you for being such an incredible ${d.rel}. Stay amazing always! ❤️`
+            content: personalWish
         },
         {
             id: 5,

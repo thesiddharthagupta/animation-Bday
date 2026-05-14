@@ -709,10 +709,21 @@ button:active {
     margin-bottom: 15px;
 }
 
-.creator-container {
-    max-width: 800px;
-    margin: 60px auto;
-    padding: 0 20px;
+.link-box {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 12px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--primary);
+    word-break: break-all;
+    margin: 20px 0;
+    border: 1px solid var(--glass-border);
+    cursor: pointer;
+}
+
+.link-box:hover {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .glow-btn::after {

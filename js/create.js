@@ -71,9 +71,35 @@ form.onsubmit = async (e) => {
         }
     }
 
-    // --- REDIRECT TO PREVIEW ---
-    // In a real app, this would be a clean URL. For local dev, we use ?id=
-    window.location.href = `preview.html?id=${surpriseId}`;
+    // --- SHOW RESULT ---
+    loadingScreen.classList.add('hidden');
+    const resultArea = document.getElementById('result-area');
+    const shareLink = document.getElementById('share-link');
+    
+    // Generate clean link
+    const finalUrl = `${window.location.origin}${window.location.pathname.replace('create.html', 'preview.html')}?id=${surpriseId}`;
+    
+    resultArea.classList.remove('hidden');
+    shareLink.innerText = finalUrl;
+
+    // Social Sharing
+    const shareText = `Hey! I made a special birthday surprise for you! Check it out here: ${finalUrl}`;
+    document.getElementById('whatsapp-btn').href = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    document.getElementById('telegram-btn').href = `https://t.me/share/url?url=${encodeURIComponent(finalUrl)}&text=${encodeURIComponent("Check out this birthday surprise! ✨")}`;
+
+    // Copy Button
+    document.getElementById('copy-btn').onclick = () => {
+        navigator.clipboard.writeText(finalUrl);
+        document.getElementById('copy-btn').innerText = "Copied! ✅";
+        setTimeout(() => document.getElementById('copy-btn').innerText = "Copy Link", 2000);
+    };
+
+    // Preview Button
+    document.getElementById('preview-btn').onclick = () => {
+        window.open(finalUrl, '_blank');
+    };
+
+    resultArea.scrollIntoView({ behavior: 'smooth' });
 };
 
 // Initial Decor

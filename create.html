@@ -16,93 +16,116 @@
     <div class="bg-orb bg-orb-2"></div>
     <div class="bg-orb bg-orb-3"></div>
 
-    <div class="creator-container">
-        <header class="header-section">
-            <h1>Create a Magical Birthday Surprise ✨</h1>
-            <p>Enter details and let the app generate a personalized birthday experience 💖</p>
-        </header>
+    <div class="main-container">
+        <div id="create-view">
+            <header class="header-section">
+                <h1>Create a Magical Birthday Surprise ✨</h1>
+                <p>Enter details and let the app generate a personalized birthday experience 💖</p>
+            </header>
 
-        <div class="glass-card">
-            <form id="generator-form">
-                <!-- Section 1: Basic Info -->
-                <div class="input-section">
-                    <h3>1. Basic Info</h3>
-                    <div class="grid-2">
-                        <div class="input-group">
-                            <label>Birthday Person Name</label>
-                            <input type="text" id="name" placeholder="e.g. Aarav" required>
+            <div class="glass-card">
+                <form id="generator-form">
+                    <!-- Section 1: Basic Info -->
+                    <div class="input-section">
+                        <h3>1. Basic Info</h3>
+                        <div class="grid-2">
+                            <div class="input-group">
+                                <label>Birthday Person Name</label>
+                                <input type="text" id="name" placeholder="e.g. Aarav" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Nickname</label>
+                                <input type="text" id="nickname" placeholder="e.g. Aaru">
+                            </div>
                         </div>
                         <div class="input-group">
-                            <label>Nickname</label>
-                            <input type="text" id="nickname" placeholder="e.g. Aaru">
+                            <label>Relationship</label>
+                            <select id="relationship">
+                                <option value="friend">Friend</option>
+                                <option value="bestie">Best Friend</option>
+                                <option value="girlfriend">Girlfriend</option>
+                                <option value="boyfriend">Boyfriend</option>
+                                <option value="sister">Sister</option>
+                                <option value="brother">Brother</option>
+                                <option value="crush">Crush</option>
+                                <option value="other">Other</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="input-group">
-                        <label>Relationship</label>
-                        <select id="relationship">
-                            <option value="friend">Friend</option>
-                            <option value="bestie">Best Friend</option>
-                            <option value="girlfriend">Girlfriend</option>
-                            <option value="boyfriend">Boyfriend</option>
-                            <option value="sister">Sister</option>
-                            <option value="brother">Brother</option>
-                            <option value="crush">Crush</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                </div>
 
-                <!-- Section 2: Message -->
-                <div class="input-section">
-                    <h3>2. Message Section</h3>
-                    <div class="input-group">
-                        <label>Write something sweet about them...</label>
-                        <textarea id="description" placeholder="Funny, caring, always makes me smile..."></textarea>
-                    </div>
-                </div>
-
-                <!-- Section 3: Themes & Animal -->
-                <div class="input-section">
-                    <h3>3. Select Vibe & Animal</h3>
-                    <div class="theme-grid">
-                        <div class="theme-card active" data-theme="cute">Cute 🌸</div>
-                        <div class="theme-card" data-theme="romantic">Romantic ❤️</div>
-                        <div class="theme-card" data-theme="funny">Funny 😂</div>
-                        <div class="theme-card" data-theme="elegant">Elegant ✨</div>
-                        <div class="theme-card" data-theme="anime">Anime 🎀</div>
-                    </div>
-                    <div class="animal-grid" style="margin-top: 15px;">
-                        <div class="animal-card active" data-animal="cat">Cat 🐱</div>
-                        <div class="animal-card" data-animal="bunny">Bunny 🐰</div>
-                        <div class="animal-card" data-animal="panda">Panda 🐼</div>
-                        <div class="animal-card" data-animal="dog">Dog 🐶</div>
-                        <div class="animal-card" data-animal="bear">Bear 🐻</div>
-                    </div>
-                </div>
-
-                <!-- Section 4: Media -->
-                <div class="input-section">
-                    <h3>4. Uploads</h3>
-                    <div class="grid-2">
+                    <!-- Section 2: Message -->
+                    <div class="input-section">
+                        <h3>2. Message Section</h3>
                         <div class="input-group">
-                            <label>Photo URL (Optional)</label>
-                            <input type="text" id="image-url" placeholder="Paste image link">
+                            <label>Write something sweet about them...</label>
+                            <textarea id="description" placeholder="Funny, caring, always makes me smile..."></textarea>
                         </div>
-                        <div class="input-group">
-                            <label>Music URL (.mp3)</label>
-                            <input type="text" id="music-url" placeholder="Paste mp3 link">
+                    </div>
+
+                    <!-- Section 3: Themes & Animal -->
+                    <div class="input-section">
+                        <h3>3. Select Vibe & Animal</h3>
+                        <div class="theme-grid">
+                            <div class="theme-card active" data-theme="cute">Cute 🌸</div>
+                            <div class="theme-card" data-theme="romantic">Romantic ❤️</div>
+                            <div class="theme-card" data-theme="funny">Funny 😂</div>
+                            <div class="theme-card" data-theme="elegant">Elegant ✨</div>
+                            <div class="theme-card" data-theme="anime">Anime 🎀</div>
+                        </div>
+                        <div class="animal-grid" style="margin-top: 15px;">
+                            <div class="animal-card active" data-animal="cat">Cat 🐱</div>
+                            <div class="animal-card" data-animal="bunny">Bunny 🐰</div>
+                            <div class="animal-card" data-animal="panda">Panda 🐼</div>
+                            <div class="animal-card" data-animal="dog">Dog 🐶</div>
+                            <div class="animal-card" data-animal="bear">Bear 🐻</div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Media -->
+                    <div class="input-section">
+                        <h3>4. Uploads</h3>
+                        <div class="grid-2">
+                            <div class="input-group">
+                                <label>Photo URL (Optional)</label>
+                                <input type="text" id="image-url" placeholder="Paste image link">
+                            </div>
+                            <div class="input-group">
+                                <label>Music URL (.mp3)</label>
+                                <input type="text" id="music-url" placeholder="Paste mp3 link">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="generate-btn glow-btn" id="generate-btn">Generate Birthday Magic 🎂✨</button>
+                </form>
+
+                <div id="loading-screen" class="hidden">
+                    <div class="loader"></div>
+                    <h2>Generating Magic...</h2>
+                    <div class="progress-outer"><div class="progress-inner" id="gen-progress"></div></div>
+                    <p id="loading-text">Saving to cloud...</p>
+                </div>
+
+                <!-- Result Area (Hidden by default) -->
+                <div id="result-area" class="hidden result-area">
+                    <h3>Magic Link Generated! 🔗✨</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 15px;">Share this link with them to start the surprise:</p>
+                    <div id="cloud-warning" class="hidden"></div>
+                    <div class="link-box" id="share-link">Generating...</div>
+                    
+                    <div class="btn-group">
+                        <button id="copy-btn" class="copy-btn">Copy Link</button>
+                        <button id="preview-btn" class="preview-btn">Preview</button>
+                    </div>
+
+                    <div class="social-share" style="margin-top: 30px;">
+                        <p style="font-size: 0.8rem; margin-bottom: 15px; color: var(--text-dim);">Quick Share:</p>
+                        <div style="display: flex; gap: 15px; justify-content: center;">
+                            <a id="whatsapp-btn" href="#" target="_blank" style="color: #25D366; text-decoration: none; font-weight: 600; font-size: 0.9rem;">WhatsApp</a>
+                            <a id="telegram-btn" href="#" target="_blank" style="color: #0088cc; text-decoration: none; font-weight: 600; font-size: 0.9rem;">Telegram</a>
                         </div>
                     </div>
                 </div>
-
-                <button type="submit" class="generate-btn glow-btn" id="generate-btn">Generate Birthday Magic 🎂✨</button>
-            </form>
-
-            <div id="loading-screen" class="hidden">
-                <div class="loader"></div>
-                <h2>Generating Magic...</h2>
-                <div class="progress-outer"><div class="progress-inner" id="gen-progress"></div></div>
-                <p id="loading-text">Saving to cloud...</p>
             </div>
         </div>
     </div>

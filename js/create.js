@@ -40,16 +40,26 @@ form.onsubmit = async (e) => {
         createdAt: new Date().toISOString()
     };
 
-    // Show Loading
+    // Show Loading with AI-like status
     form.classList.add('hidden');
     loadingScreen.classList.remove('hidden');
     const progressInner = document.getElementById('gen-progress');
+    const loadingText = document.getElementById('loading-text');
     
-    // Simulate generation steps
-    const steps = [20, 50, 80, 100];
-    for(let p of steps) {
-        progressInner.style.width = `${p}%`;
-        await new Promise(r => setTimeout(r, 400));
+    // AI Status Updates
+    const statusMessages = [
+        "Analyzing relationship dynamics...",
+        "Scanning personality keywords...",
+        "Crafting emotional build-up...",
+        "Generating personalized magic...",
+        "Finalizing your surprise! ✨"
+    ];
+
+    const steps = [20, 40, 60, 80, 100];
+    for(let i=0; i<steps.length; i++) {
+        progressInner.style.width = `${steps[i]}%`;
+        loadingText.innerText = statusMessages[i];
+        await new Promise(r => setTimeout(r, 600));
     }
 
     // --- SAVE DATA ---
@@ -59,13 +69,15 @@ form.onsubmit = async (e) => {
     console.log("Saved to LocalStorage:", surpriseId);
 
     // 2. Save to Supabase (If configured)
-    if (_supabase) {
+    let saveSuccessful = false;
+    if (isCloudReady && _supabase) {
         try {
             const { error } = await _supabase
                 .from('surprises')
                 .insert([{ id: surpriseId, data: data }]);
             if (error) throw error;
             console.log("Saved to Supabase:", surpriseId);
+            saveSuccessful = true;
         } catch (err) {
             console.error("Supabase Save Failed:", err.message);
         }
@@ -76,11 +88,24 @@ form.onsubmit = async (e) => {
     const resultArea = document.getElementById('result-area');
     const shareLink = document.getElementById('share-link');
     
-    // Generate clean link
-    const finalUrl = `${window.location.origin}${window.location.pathname.replace('create.html', 'preview.html')}?id=${surpriseId}`;
+    // Generate clean link using the robust utility
+    const finalUrl = generateShareableLink(surpriseId);
     
     resultArea.classList.remove('hidden');
     shareLink.innerText = finalUrl;
+
+    // Cloud Warning Logic
+    const warningEl = document.getElementById('cloud-warning');
+    if (!saveSuccessful) {
+        warningEl.classList.remove('hidden');
+        warningEl.innerHTML = `
+            <div style="background: rgba(255, 166, 0, 0.1); border: 1px solid orange; padding: 10px; border-radius: 12px; font-size: 0.8rem; margin: 10px 0; color: #ffcc00;">
+                ⚠️ <b>Local Only:</b> Supabase is not configured. This link will only work on <b>your device</b>. Set your API keys in <code>js/app.js</code> to share with others!
+            </div>
+        `;
+    } else {
+        warningEl.classList.add('hidden');
+    }
 
     // Social Sharing
     const shareText = `Hey! I made a special birthday surprise for you! Check it out here: ${finalUrl}`;
@@ -89,9 +114,15 @@ form.onsubmit = async (e) => {
 
     // Copy Button
     document.getElementById('copy-btn').onclick = () => {
-        navigator.clipboard.writeText(finalUrl);
-        document.getElementById('copy-btn').innerText = "Copied! ✅";
-        setTimeout(() => document.getElementById('copy-btn').innerText = "Copy Link", 2000);
+        navigator.clipboard.writeText(finalUrl).then(() => {
+            const originalText = document.getElementById('copy-btn').innerText;
+            document.getElementById('copy-btn').innerText = "Copied! ✅";
+            document.getElementById('copy-btn').style.background = "var(--accent)";
+            setTimeout(() => {
+                document.getElementById('copy-btn').innerText = originalText;
+                document.getElementById('copy-btn').style.background = "";
+            }, 2000);
+        });
     };
 
     // Preview Button

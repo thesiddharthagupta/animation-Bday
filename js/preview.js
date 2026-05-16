@@ -32,7 +32,7 @@ async function init() {
     }
 
     // 2. Try Supabase (If not in local or if shared with friend)
-    if (!data && _supabase) {
+    if (!data && isCloudReady && _supabase) {
         try {
             const { data: record, error } = await _supabase
                 .from('surprises')
@@ -59,8 +59,8 @@ async function init() {
 function setupViewer(d) {
     document.body.setAttribute('data-theme', d.theme);
     
-    // Auto-generate story based on relationship
-    pages = generateStory(d);
+    // Auto-generate story using the Smart Engine
+    pages = generateSmartStory(d);
     
     if (d.music) bgMusic.src = d.music;
     else bgMusic.src = "https://raw.githubusercontent.com/Adit-Kumbhare/Happy-Birthday/main/happy-birthday.mp3";
@@ -69,46 +69,7 @@ function setupViewer(d) {
     renderPage(0);
 }
 
-function generateStory(d) {
-    const animalAssets = {
-        cat: "assets/cat_gift.png",
-        bunny: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v8xKVYYZ4H6Y7tD59N/giphy.gif",
-        panda: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/7NoNw4pMNTvgc/giphy.gif",
-        dog: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v8xKVYYZ4H6Y7tD59N/giphy.gif",
-        bear: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1eXp1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v8xKVYYZ4H6Y7tD59N/giphy.gif"
-    };
 
-    const mainImg = d.img || animalAssets[d.animal] || animalAssets.cat;
-
-    return [
-        {
-            id: 1,
-            image: animalAssets[d.animal] || animalAssets.cat,
-            text: `HEY ${d.name.toUpperCase()} 👀\nREADY FOR A SURPRISE?`,
-            buttons: [{ text: "YES!", action: "next" }, { text: "NO..", action: "dodge", id: "no-btn" }]
-        },
-        {
-            id: 2,
-            image: mainImg,
-            text: `YOU ARE ONE OF THE MOST ${d.desc ? d.desc.toUpperCase() : 'AMAZING'} PEOPLE 💖`,
-            buttons: [{ text: "How much? 😍", action: "next" }]
-        },
-        {
-            id: 3,
-            type: "message",
-            content: `Happy Birthday ${d.nickname}! 🎂\n\n${d.desc || "You're incredible!"}\n\nStay amazing always! ❤️`
-        },
-        {
-            id: 4,
-            type: "post",
-            user: `${d.nickname}'s Special Day ✨`,
-            image: mainImg,
-            likes: "1,245,678",
-            caption: `<b>Happy Birthday ${d.name}!</b> 🎂 Wishing you the most magical day ever. 💖🌸✨`,
-            final: true
-        }
-    ];
-}
 
 function renderPage(idx) {
     const page = pages[idx];
@@ -202,12 +163,11 @@ function renderPost(page) {
 }
 
 function dodge(btn) {
-    if (btn.parentElement !== document.body) document.body.appendChild(btn);
-    const x = Math.random() * (window.innerWidth - btn.offsetWidth - 20);
-    const y = Math.random() * (window.innerHeight - btn.offsetHeight - 20);
+    const x = Math.random() * (window.innerWidth - btn.offsetWidth - 40);
+    const y = Math.random() * (window.innerHeight - btn.offsetHeight - 40);
     btn.style.position = 'fixed';
-    btn.style.left = `${Math.max(10, x)}px`;
-    btn.style.top = `${Math.max(10, y)}px`;
+    btn.style.left = `${Math.max(20, x)}px`;
+    btn.style.top = `${Math.max(20, y)}px`;
     btn.style.zIndex = '1000';
 }
 

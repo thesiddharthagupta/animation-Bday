@@ -25,7 +25,19 @@ async function initStandalonePreview() {
     try {
         let data = null;
 
-        if (cardId || encodedPayload) {
+        if (cardId) {
+            try {
+                const apiRes = await fetch(`/api/cards/${encodeURIComponent(cardId)}`);
+                if (apiRes.ok) {
+                    const apiData = await apiRes.json();
+                    if (apiData.card) data = apiData.card;
+                }
+            } catch (apiErr) {
+                console.log("Python backend fetch note:", apiErr);
+            }
+        }
+
+        if (!data && (cardId || encodedPayload)) {
             if (window.SupabaseBackend) {
                 data = await window.SupabaseBackend.loadCard(cardId, encodedPayload);
             }
@@ -148,9 +160,24 @@ function pGoToStep(step) {
         if (revMsg && pCardData && pCardData.message) {
             typewritePreviewText(revMsg, `"${pCardData.message}"`);
         }
+        window.birthdayAudio?.bindControls();
+        setTimeout(() => {
+            window.birthdayAudio?.play();
+        }, 300);
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function pShareCard() {
+    const url = window.location.href;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url);
+        showToast("Shareable link copied to clipboard! 🌸");
+    } else {
+        showToast("Share link ready! 🌸");
+    }
+    openQrModal(url, pCardData?.name || "Aarya");
 }
 
 function typewritePreviewText(element, text, speed = 25) {

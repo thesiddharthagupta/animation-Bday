@@ -29,6 +29,17 @@
 
     <!-- Phone App Frame Container -->
     <div class="app-viewport">
+        <!-- Phone Status Bar (9:41, Notch, Icons) -->
+        <div class="phone-status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-notch"></div>
+            <div class="status-icons">
+                <span class="status-signal">📶</span>
+                <span class="status-wifi">📡</span>
+                <span class="status-battery">🔋</span>
+            </div>
+        </div>
+
         <!-- Top App Bar -->
         <header class="app-header">
             <a href="index.html" class="brand-logo" style="text-decoration: none;">
@@ -204,7 +215,7 @@
                             </div>
 
                             <div class="reveal-cake-mascot-box">
-                                <img src="assets/preview_hero.jpg" alt="Cake mascot" class="reveal-cake-img" id="preveal-cake-img">
+                                <img src="assets/cat_birthday.png" alt="Cake mascot" class="reveal-cake-img" id="preveal-cake-img">
                             </div>
                         </div>
 
@@ -218,21 +229,24 @@
                             <button class="audio-play-icon" id="preveal-audio-toggle">▶</button>
                             <div class="audio-track-info">
                                 <span class="audio-title">A Birthday Song for You</span>
-                                <div class="audio-progress-track">
+                                <div class="audio-progress-track" id="preveal-audio-track">
                                     <div class="audio-progress-bar" id="preveal-audio-bar"></div>
                                 </div>
                             </div>
                             <span class="audio-time" id="preveal-audio-time">0:00 / 3:28</span>
-                            <span class="audio-volume-icon">🔊</span>
+                            <button class="audio-volume-icon" id="preveal-audio-vol" title="Toggle Mute">🔊</button>
                         </div>
 
                         <div class="reveal-action-buttons">
                             <button type="button" class="action-pill-btn" onclick="pGoToStep(1)">
                                 <span>Replay 🔄</span>
                             </button>
-                            <a href="index.html" class="glow-btn" style="flex: 1; text-decoration: none;">
-                                <span>✨ Make a Card</span>
-                            </a>
+                            <button type="button" class="glow-btn" style="flex: 1;" onclick="pShareCard()">
+                                <span>Share ↗</span>
+                            </button>
+                        </div>
+                        <div style="margin-top: 14px; text-align: center;">
+                            <a href="index.html" style="font-size: 0.82rem; color: var(--accent); text-decoration: none; opacity: 0.9;">✨ Create Your Own Birthday Surprise ➔</a>
                         </div>
                     </div>
                 </div>

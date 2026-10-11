@@ -167,16 +167,68 @@ body::before {
     100% { transform: translateY(-10vh) translateX(40px); opacity: 0; }
 }
 
-/* --- 3. MOBILE-FIRST APP VIEWPORT --- */
+/* --- 3. MOBILE-FIRST APP VIEWPORT & PHONE CHASSIS --- */
 .app-viewport {
     width: 100%;
     max-width: 440px;
-    min-height: 100vh;
-    padding: 16px 16px 30px;
+    min-height: 94vh;
+    margin: 20px auto 40px;
+    padding: 14px 18px 32px;
     position: relative;
     z-index: 10;
     display: flex;
     flex-direction: column;
+    background: radial-gradient(ellipse at 50% 12%, #2c0b3e 0%, #170526 52%, #090112 100%);
+    border-radius: 46px;
+    border: 3px solid rgba(255, 120, 200, 0.4);
+    box-shadow: 
+        0 0 50px rgba(255, 42, 133, 0.28),
+        0 25px 70px rgba(0, 0, 0, 0.85),
+        inset 0 0 25px rgba(255, 42, 133, 0.12);
+}
+
+@media (max-width: 480px) {
+    .app-viewport {
+        margin: 0;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        max-width: 100%;
+        min-height: 100vh;
+        padding: 12px 14px 28px;
+    }
+}
+
+/* Phone Status Bar (9:41, Notch, Battery/Wifi) */
+.phone-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.88);
+    z-index: 55;
+    user-select: none;
+}
+
+.status-time { 
+    font-family: 'Poppins', sans-serif; 
+    font-size: 0.84rem; 
+    letter-spacing: -0.2px;
+}
+
+.status-notch {
+    width: 85px;
+    height: 18px;
+    background: #000;
+    border-radius: 12px;
+}
+
+.status-icons { 
+    display: flex; 
+    gap: 6px; 
+    font-size: 0.72rem; 
 }
 
 /* --- 4. TOP APP BAR --- */
@@ -185,13 +237,11 @@ body::before {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 0 16px;
+    padding: 0 0 16px;
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgba(10, 4, 20, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: transparent;
 }
 
 .brand-logo {
@@ -203,16 +253,17 @@ body::before {
 }
 
 .brand-icon {
-    font-size: 1.4rem;
-    filter: drop-shadow(0 0 6px var(--primary-glow));
+    font-size: 1.45rem;
+    filter: drop-shadow(0 0 8px var(--primary-glow));
 }
 
 .brand-text {
     font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-    font-size: 1.25rem;
+    font-weight: 800;
+    font-size: 1.3rem;
     color: white;
     letter-spacing: -0.3px;
+    text-shadow: 0 2px 10px rgba(255, 42, 133, 0.35);
 }
 
 .header-actions {
@@ -226,7 +277,9 @@ body::before {
     height: 38px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 140, 220, 0.35);
     color: white;
     display: flex;
     align-items: center;
@@ -234,12 +287,14 @@ body::before {
     font-size: 1.1rem;
     cursor: pointer;
     transition: all 0.25s ease;
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
 }
 
 .header-icon-btn:hover {
-    background: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.18);
     border-color: var(--primary);
     transform: scale(1.08);
+    box-shadow: 0 0 14px var(--primary-glow);
 }
 
 .header-icon-btn.playing {
@@ -257,7 +312,7 @@ body::before {
 /* --- 5. SCREEN 1: CREATE SCREEN (1. Upload) --- */
 .screen-header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
 
 .screen-title {
@@ -268,29 +323,51 @@ body::before {
     background: var(--gradient-brand);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     letter-spacing: -0.5px;
+    filter: drop-shadow(0 2px 12px rgba(255, 42, 133, 0.35));
 }
 
 .screen-subtitle {
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
     line-height: 1.5;
     padding: 0 8px;
 }
 
+/* Glass Form Card — Ultra-Glassy Frosted Acrylic */
 .glass-form-card {
-    background: var(--gradient-card);
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
-    border: 1px solid var(--glass-border);
-    border-radius: 26px;
+    background: linear-gradient(
+        140deg,
+        rgba(255, 255, 255, 0.14) 0%,
+        rgba(255, 255, 255, 0.04) 30%,
+        rgba(35, 8, 52, 0.45) 85%,
+        rgba(18, 3, 30, 0.65) 100%
+    );
+    backdrop-filter: blur(32px) saturate(200%);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+    border: 1.5px solid rgba(255, 140, 220, 0.45);
+    border-radius: 30px;
     padding: 24px 20px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6),
-                inset 0 0 20px rgba(255, 42, 133, 0.05);
+    box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.7),
+        0 0 35px rgba(255, 42, 133, 0.22),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.6),
+        inset 0 -1px 2px rgba(255, 42, 133, 0.2);
     position: relative;
     overflow: hidden;
     width: 100%;
+}
+
+.glass-form-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 8%;
+    right: 8%;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+    pointer-events: none;
 }
 
 .grid-2 {
@@ -300,16 +377,17 @@ body::before {
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 14px;
     text-align: left;
 }
 
 .form-group label, .label-row label {
     display: block;
     font-size: 0.8rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
     margin-bottom: 6px;
+    letter-spacing: -0.1px;
 }
 
 .label-row {
@@ -324,28 +402,36 @@ body::before {
     font-family: monospace;
 }
 
+/* Ultra-Glass Form Input Pills */
 input[type="text"],
 input[type="date"],
 input[type="url"],
 textarea,
 select {
     width: 100%;
-    background: var(--bg-input);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 140, 220, 0.35);
     padding: 12px 14px;
-    border-radius: 14px;
+    border-radius: 16px;
     color: white;
     font-family: inherit;
     font-size: 0.92rem;
-    font-weight: 500;
+    font-weight: 600;
     outline: none;
     transition: all 0.25s ease;
+    box-shadow: 
+        inset 0 1px 2px rgba(255, 255, 255, 0.25),
+        0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 input:focus, textarea:focus, select:focus {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--primary);
-    box-shadow: 0 0 14px var(--primary-glow);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ff2a85;
+    box-shadow: 
+        0 0 18px rgba(255, 42, 133, 0.5),
+        inset 0 1px 2px rgba(255, 255, 255, 0.4);
 }
 
 textarea {
@@ -392,10 +478,12 @@ select option { background: #190c2b; color: white; }
 }
 
 .theme-chip {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 140, 220, 0.3);
     padding: 10px 4px;
-    border-radius: 14px;
+    border-radius: 16px;
     cursor: pointer;
     text-align: center;
     display: flex;
@@ -403,19 +491,24 @@ select option { background: #190c2b; color: white; }
     align-items: center;
     gap: 3px;
     transition: all 0.25s ease;
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-.theme-chip-icon { font-size: 1.2rem; }
-.theme-chip-name { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); }
+.theme-chip-icon { font-size: 1.25rem; }
+.theme-chip-name { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); }
 
-.theme-chip:hover { background: rgba(255, 255, 255, 0.1); }
+.theme-chip:hover { 
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 140, 220, 0.55);
+}
+
 .theme-chip.active {
-    background: rgba(255, 42, 133, 0.18);
-    border-color: var(--primary);
-    box-shadow: 0 0 14px var(--primary-glow);
-    transform: scale(1.04);
+    background: linear-gradient(135deg, rgba(255, 42, 133, 0.35) 0%, rgba(168, 85, 247, 0.3) 100%);
+    border: 1.5px solid #ff2a85;
+    box-shadow: 0 0 18px rgba(255, 42, 133, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.45);
+    transform: scale(1.05);
 }
-.theme-chip.active .theme-chip-name { color: white; font-weight: 700; }
+.theme-chip.active .theme-chip-name { color: white; }
 
 /* Mascot Grid 4 */
 .mascot-grid-4 {
@@ -425,10 +518,12 @@ select option { background: #190c2b; color: white; }
 }
 
 .mascot-avatar-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 140, 220, 0.3);
     padding: 10px 4px;
-    border-radius: 14px;
+    border-radius: 16px;
     cursor: pointer;
     text-align: center;
     display: flex;
@@ -436,46 +531,56 @@ select option { background: #190c2b; color: white; }
     align-items: center;
     gap: 4px;
     transition: all 0.25s ease;
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .avatar-circle {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.12);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.3rem;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
 
-.mascot-avatar-card span { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); }
+.mascot-avatar-card span { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); }
 
-.mascot-avatar-card:hover { background: rgba(255, 255, 255, 0.1); }
+.mascot-avatar-card:hover { 
+    background: rgba(255, 255, 255, 0.16); 
+    border-color: rgba(255, 140, 220, 0.55);
+}
+
 .mascot-avatar-card.active {
-    background: rgba(255, 209, 102, 0.14);
-    border-color: var(--accent);
-    box-shadow: 0 0 14px var(--accent-glow);
-    transform: scale(1.04);
+    background: linear-gradient(135deg, rgba(255, 42, 133, 0.3) 0%, rgba(255, 209, 102, 0.25) 100%);
+    border: 1.5px solid #ff2a85;
+    box-shadow: 0 0 18px rgba(255, 42, 133, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.45);
+    transform: scale(1.05);
 }
-.mascot-avatar-card.active span { color: var(--accent); font-weight: 700; }
+.mascot-avatar-card.active span { color: var(--accent); }
 
-/* Photo Upload Dropzone */
+/* Photo Upload Dropzone — Frosted Glass Capsule */
 .photo-upload-dropzone {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px dashed var(--glass-border);
+    padding: 12px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1.5px dashed rgba(255, 140, 220, 0.45);
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.25), 0 4px 16px rgba(0, 0, 0, 0.3);
     cursor: pointer;
     transition: all 0.25s ease;
 }
 
 .photo-upload-dropzone:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: #ff2a85;
+    box-shadow: 0 0 22px rgba(255, 42, 133, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.35);
 }
 
 .file-input-hidden { display: none; }
@@ -666,38 +771,78 @@ select option { background: #190c2b; color: white; }
     width: 100%;
     display: flex;
     justify-content: center;
-    padding-top: 15px;
+    padding-top: 18px;
+    perspective: 1200px;
 }
 
 .deck-shadow-card {
     position: absolute;
-    width: 90%;
-    height: 90%;
+    width: 96%;
+    height: 96%;
     border-radius: 28px;
-    background: rgba(255, 42, 133, 0.08);
-    border: 1px solid rgba(255, 42, 133, 0.25);
-    backdrop-filter: blur(10px);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.16) 0%,
+        rgba(255, 255, 255, 0.04) 40%,
+        rgba(50, 15, 75, 0.55) 100%
+    );
+    border: 1.5px solid rgba(255, 140, 220, 0.5);
+    backdrop-filter: blur(28px) saturate(200%);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    box-shadow: 
+        0 20px 45px rgba(0, 0, 0, 0.65), 
+        0 0 30px rgba(255, 42, 133, 0.3), 
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.55);
     pointer-events: none;
     z-index: 1;
+    transition: transform 0.4s ease;
 }
 
 .deck-shadow-card.deck-2 {
-    transform: rotate(-3.5deg) translateY(-8px);
-    opacity: 0.6;
+    transform: rotate(-7deg) translate(-14px, -10px);
+    opacity: 0.8;
 }
 
 .deck-shadow-card.deck-3 {
-    transform: rotate(3.5deg) translateY(-14px);
-    opacity: 0.35;
+    transform: rotate(7deg) translate(14px, -12px);
+    opacity: 0.65;
 }
 
-.main-popup-card {
+.main-popup-card, .glass-card {
     position: relative;
     z-index: 5;
     text-align: center;
     padding: 28px 22px;
     border-radius: 28px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 42, 133, 0.15);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.18) 0%,
+        rgba(255, 255, 255, 0.05) 35%,
+        rgba(40, 12, 60, 0.45) 75%,
+        rgba(20, 4, 35, 0.65) 100%
+    );
+    backdrop-filter: blur(32px) saturate(200%);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+    border: 1.5px solid rgba(255, 140, 220, 0.5);
+    box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.7),
+        0 0 35px rgba(255, 42, 133, 0.25),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.65),
+        inset 0 -1.5px 2px rgba(255, 42, 133, 0.25);
+    overflow: hidden;
+    width: 100%;
+}
+
+.main-popup-card::before, .glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 8%;
+    right: 8%;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+    pointer-events: none;
+    z-index: 2;
 }
 
 .card-progress-badge {
@@ -924,6 +1069,7 @@ select option { background: #190c2b; color: white; }
     flex-direction: column;
     align-items: center;
     text-align: center;
+    padding-top: 12px;
 }
 
 .reveal-crown-icon {
@@ -1006,17 +1152,39 @@ select option { background: #190c2b; color: white; }
     display: block;
 }
 
-/* Glass Message Plaque */
+/* Glass Message Plaque — Radiant Frosted Crystal Plaque */
 .glass-message-plaque {
     width: 100%;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 16px 20px;
-    margin-bottom: 14px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.16) 0%,
+        rgba(255, 255, 255, 0.04) 45%,
+        rgba(40, 10, 55, 0.5) 100%
+    );
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    border: 1.5px solid rgba(255, 209, 102, 0.45);
+    border-radius: 24px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.55),
+        0 0 25px rgba(255, 209, 102, 0.2),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.65),
+        inset 0 -1px 2px rgba(255, 209, 102, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-message-plaque::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 8%;
+    right: 8%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+    pointer-events: none;
 }
 
 .plaque-message-text {
@@ -1024,20 +1192,31 @@ select option { background: #190c2b; color: white; }
     font-style: italic;
     line-height: 1.55;
     color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* Audio Player Bar */
+/* Audio Player Bar — Glowing Translucent Glass Capsule */
 .reveal-audio-bar {
     width: 100%;
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.04) 45%,
+        rgba(30, 8, 45, 0.55) 100%
+    );
+    backdrop-filter: blur(26px) saturate(190%);
+    -webkit-backdrop-filter: blur(26px) saturate(190%);
+    border: 1.5px solid rgba(255, 140, 220, 0.45);
     border-radius: 50px;
-    padding: 8px 16px;
+    padding: 10px 18px;
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 16px;
+    box-shadow: 
+        0 14px 32px rgba(0, 0, 0, 0.5),
+        0 0 22px rgba(255, 42, 133, 0.25),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.5);
 }
 
 .audio-play-icon {
@@ -1069,25 +1248,59 @@ select option { background: #190c2b; color: white; }
 
 .audio-progress-track {
     width: 100%;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.12);
+    height: 4px;
+    background: rgba(255, 255, 255, 0.14);
     border-radius: 10px;
     overflow: hidden;
+    cursor: pointer;
+    transition: height 0.2s ease;
+}
+
+.audio-progress-track:hover {
+    height: 6px;
 }
 
 .audio-progress-bar {
     height: 100%;
-    width: 35%;
+    width: 0%;
     background: var(--gradient-brand);
+    border-radius: 10px;
+    transition: width 0.1s linear;
 }
 
 .audio-time {
     font-size: 0.72rem;
     color: var(--text-dim);
     font-family: monospace;
+    white-space: nowrap;
 }
 
-.audio-volume-icon { font-size: 0.85rem; color: var(--text-dim); }
+.audio-volume-icon { 
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    font-size: 0.88rem; 
+    color: var(--text-dim); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.audio-volume-icon:hover {
+    transform: scale(1.2);
+    color: white;
+}
+
+.audio-play-icon.playing-pulse {
+    animation: playPulse 1.4s infinite alternate;
+}
+
+@keyframes playPulse {
+    0% { box-shadow: 0 0 8px var(--primary-glow); transform: scale(1); }
+    100% { box-shadow: 0 0 20px var(--primary-glow), 0 0 30px rgba(255, 42, 133, 0.5); transform: scale(1.06); }
+}
 
 .reveal-action-buttons {
     display: flex;

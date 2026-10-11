@@ -330,3 +330,173 @@ class MusicBoxSynthesizer {
 }
 
 window.musicBoxSynth = new MusicBoxSynthesizer();
+
+// --- 6. INTERACTIVE BIRTHDAY AUDIO PLAYER CONTROLLER ---
+
+class BirthdayAudioController {
+    constructor() {
+        this.audio = new Audio('assets/birthday_music.wav');
+        this.audio.preload = 'auto';
+        this.audio.loop = true;
+        this.isPlaying = false;
+        this.isMuted = false;
+        this.duration = 38.3; // duration in seconds
+        this.timer = null;
+
+        this.audio.addEventListener('loadedmetadata', () => {
+            if (this.audio.duration && !isNaN(this.audio.duration)) {
+                this.duration = this.audio.duration;
+            }
+        });
+
+        this.audio.addEventListener('timeupdate', () => {
+            this.updateUI();
+        });
+
+        this.audio.addEventListener('ended', () => {
+            this.isPlaying = false;
+            this.updateIcons();
+        });
+    }
+
+    togglePlay() {
+        if (this.isPlaying) {
+            this.pause();
+        } else {
+            this.play();
+        }
+    }
+
+    play() {
+        // Resume Web Audio context if suspended
+        if (window.musicBoxSynth?.ctx?.state === 'suspended') {
+            window.musicBoxSynth.ctx.resume();
+        }
+
+        const promise = this.audio.play();
+        if (promise !== undefined) {
+            promise.then(() => {
+                this.isPlaying = true;
+                this.updateIcons();
+            }).catch(err => {
+                console.log("Audio playback note:", err.message);
+                // Fallback to Web Audio synthesiser
+                window.musicBoxSynth?.playHappyBirthday();
+                this.isPlaying = true;
+                this.updateIcons();
+                this.startSimulatedTimer();
+            });
+        }
+    }
+
+    pause() {
+        this.audio.pause();
+        this.isPlaying = false;
+        window.musicBoxSynth?.stop();
+        if (this.timer) clearInterval(this.timer);
+        this.updateIcons();
+    }
+
+    seek(percent) {
+        const dur = this.audio.duration || this.duration || 38.3;
+        const target = (percent / 100) * dur;
+        if (!isNaN(target)) {
+            this.audio.currentTime = target;
+        }
+        this.updateUI();
+    }
+
+    toggleMute() {
+        this.isMuted = !this.isMuted;
+        this.audio.muted = this.isMuted;
+        const volBtns = document.querySelectorAll('.audio-volume-icon, #reveal-audio-vol, #preveal-audio-vol');
+        volBtns.forEach(btn => {
+            btn.textContent = this.isMuted ? '🔇' : '🔊';
+        });
+        showToast(this.isMuted ? "Audio muted 🔇" : "Audio unmuted 🔊", 1800);
+    }
+
+    startSimulatedTimer() {
+        if (this.timer) clearInterval(this.timer);
+        let sec = 0;
+        this.timer = setInterval(() => {
+            if (!this.isPlaying) {
+                clearInterval(this.timer);
+                return;
+            }
+            sec = (sec + 1) % 38;
+            this.updateTimeDisplay(sec, 38.3);
+            const fillBars = document.querySelectorAll('#reveal-audio-bar, #preveal-audio-bar');
+            fillBars.forEach(b => b.style.width = `${(sec / 38.3) * 100}%`);
+        }, 1000);
+    }
+
+    updateUI() {
+        const cur = this.audio.currentTime || 0;
+        const dur = this.audio.duration || this.duration || 38.3;
+        this.updateTimeDisplay(cur, dur);
+        const fillBars = document.querySelectorAll('#reveal-audio-bar, #preveal-audio-bar');
+        const pct = Math.min(100, (cur / dur) * 100);
+        fillBars.forEach(b => b.style.width = `${pct}%`);
+    }
+
+    updateTimeDisplay(cur, dur) {
+        const format = (t) => {
+            const m = Math.floor(t / 60);
+            const s = Math.floor(t % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        };
+        // Display format: 0:xx / 3:28 as shown on design reference
+        const str = `${format(cur)} / 3:28`;
+        const timeEls = document.querySelectorAll('#reveal-audio-time, #preveal-audio-time');
+        timeEls.forEach(el => el.textContent = str);
+    }
+
+    updateIcons() {
+        const toggles = document.querySelectorAll('#reveal-audio-toggle, #preveal-audio-toggle');
+        toggles.forEach(btn => {
+            btn.textContent = this.isPlaying ? '❚❚' : '▶';
+            if (this.isPlaying) {
+                btn.classList.add('playing-pulse');
+            } else {
+                btn.classList.remove('playing-pulse');
+            }
+        });
+    }
+
+    bindControls() {
+        // Play/Pause buttons
+        document.querySelectorAll('#reveal-audio-toggle, #preveal-audio-toggle').forEach(btn => {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.togglePlay();
+            };
+        });
+
+        // Volume mute toggles
+        document.querySelectorAll('.audio-volume-icon, #reveal-audio-vol, #preveal-audio-vol').forEach(btn => {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleMute();
+            };
+        });
+
+        // Progress bar click to seek
+        document.querySelectorAll('.audio-progress-track, #reveal-audio-track, #preveal-audio-track').forEach(track => {
+            track.onclick = (e) => {
+                const rect = track.getBoundingClientRect();
+                const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                this.seek(pos * 100);
+            };
+        });
+    }
+}
+
+window.birthdayAudio = new BirthdayAudioController();
+
+// Auto-bind controls on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.birthdayAudio?.bindControls();
+});

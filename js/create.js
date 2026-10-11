@@ -61,8 +61,23 @@ function initScreen1Form() {
             activeSurpriseState.date = document.getElementById('input-date').value || '2025-05-24';
             activeSurpriseState.message = msgInput.value.trim() || "Wishing you a day as special as you are! Stay happy always! 💕";
 
-            // Upload photo to Supabase storage if selected
-            if (uploadedPhotoFile && window.SupabaseBackend) {
+            // 1. Upload photo via Python API or Supabase
+            if (uploadedPhotoFile) {
+                try {
+                    const fd = new FormData();
+                    fd.append('photo', uploadedPhotoFile);
+                    const upResp = await fetch('/api/upload', { method: 'POST', body: fd });
+                    if (upResp.ok) {
+                        const upData = await upResp.json();
+                        if (upData.photo_url) activeSurpriseState.photoUrl = upData.photo_url;
+                    }
+                } catch (e) {
+                    console.log("Python upload notice:", e);
+                }
+            }
+
+            // 2. Client-side Supabase storage upload if photo not yet uploaded
+            if (uploadedPhotoFile && !activeSurpriseState.photoUrl?.startsWith('http') && window.SupabaseBackend) {
                 try {
                     const uploadedUrl = await window.SupabaseBackend.uploadPhoto(uploadedPhotoFile, activeSurpriseState.id);
                     if (uploadedUrl) activeSurpriseState.photoUrl = uploadedUrl;
@@ -71,14 +86,33 @@ function initScreen1Form() {
                 }
             }
 
-            // Save to database
+            // 3. Save to Python API (which syncs to Supabase & SQLite)
+            try {
+                const pyResp = await fetch('/api/cards', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(activeSurpriseState)
+                });
+                if (pyResp.ok) {
+                    const pyData = await pyResp.json();
+                    if (pyData.share_url) {
+                        activeSurpriseState.shareUrl = pyData.share_url;
+                    }
+                }
+            } catch (pyErr) {
+                console.log("Python save note:", pyErr);
+            }
+
+            // 4. Save to client Supabase & LocalStorage
             if (window.SupabaseBackend) {
                 await window.SupabaseBackend.saveCard(activeSurpriseState);
             }
             localStorage.setItem('birthdaybloom_last_id', activeSurpriseState.id);
 
-            // Generate working share URL
-            activeSurpriseState.shareUrl = generateCardShareUrl(activeSurpriseState.id, activeSurpriseState);
+            // Generate fallback share URL if not already provided
+            if (!activeSurpriseState.shareUrl) {
+                activeSurpriseState.shareUrl = generateCardShareUrl(activeSurpriseState.id, activeSurpriseState);
+            }
 
             // Populate personalized details across popup cards
             populatePopupCards(activeSurpriseState);
@@ -264,6 +298,10 @@ function goToStep(stepIndex) {
         if (revMsg && activeSurpriseState.message) {
             typewriteText(revMsg, `"${activeSurpriseState.message}"`);
         }
+        window.birthdayAudio?.bindControls();
+        setTimeout(() => {
+            window.birthdayAudio?.play();
+        }, 300);
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });

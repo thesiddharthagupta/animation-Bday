@@ -39,6 +39,17 @@
 
     <!-- Phone App Frame Container -->
     <div class="app-viewport">
+        <!-- Phone Status Bar (9:41, Notch, Icons) -->
+        <div class="phone-status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-notch"></div>
+            <div class="status-icons">
+                <span class="status-signal">📶</span>
+                <span class="status-wifi">📡</span>
+                <span class="status-battery">🔋</span>
+            </div>
+        </div>
+
         <!-- Top App Bar -->
         <header class="app-header">
             <div class="brand-logo" onclick="resetToCreateScreen()">
@@ -323,7 +334,7 @@
                             </div>
 
                             <div class="reveal-cake-mascot-box">
-                                <img src="assets/preview_hero.jpg" alt="Cake mascot" class="reveal-cake-img" id="reveal-cake-img">
+                                <img src="assets/cat_birthday.png" alt="Cake mascot" class="reveal-cake-img" id="reveal-cake-img">
                             </div>
                         </div>
 
@@ -339,12 +350,12 @@
                             <button class="audio-play-icon" id="reveal-audio-toggle">▶</button>
                             <div class="audio-track-info">
                                 <span class="audio-title">A Birthday Song for You</span>
-                                <div class="audio-progress-track">
+                                <div class="audio-progress-track" id="reveal-audio-track">
                                     <div class="audio-progress-bar" id="reveal-audio-bar"></div>
                                 </div>
                             </div>
                             <span class="audio-time" id="reveal-audio-time">0:00 / 3:28</span>
-                            <span class="audio-volume-icon">🔊</span>
+                            <button class="audio-volume-icon" id="reveal-audio-vol" title="Toggle Mute">🔊</button>
                         </div>
 
                         <!-- Action Buttons -->

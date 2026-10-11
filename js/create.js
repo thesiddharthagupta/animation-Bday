@@ -117,24 +117,67 @@ function initPhotoDropzone() {
     const dropzone = document.getElementById('photo-dropzone');
     const input = document.getElementById('file-photo');
     const thumb = document.getElementById('photo-thumb-img');
+    const removeBtn = document.getElementById('btn-remove-photo');
 
     if (!dropzone || !input) return;
 
-    dropzone.addEventListener('click', () => input.click());
+    dropzone.addEventListener('click', (e) => {
+        if (e.target.closest('#btn-remove-photo')) return;
+        input.click();
+    });
+
+    ['dragenter', 'dragover'].forEach(evt => {
+        dropzone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add('dragover');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(evt => {
+        dropzone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('dragover');
+        });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        const file = e.dataTransfer?.files?.[0];
+        if (file && file.type.startsWith('image/')) {
+            handlePhotoFile(file);
+        }
+    });
 
     input.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
-            uploadedPhotoFile = file;
-            const reader = new FileReader();
-            reader.onload = (evt) => {
-                thumb.src = evt.target.result;
-                activeSurpriseState.photoUrl = evt.target.result;
-                showToast("Photo added! 📸");
-            };
-            reader.readAsDataURL(file);
+            handlePhotoFile(file);
         }
     });
+
+    function handlePhotoFile(file) {
+        uploadedPhotoFile = file;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            if (thumb) thumb.src = evt.target.result;
+            activeSurpriseState.photoUrl = evt.target.result;
+            showToast("Photo added! 📸");
+        };
+        reader.readAsDataURL(file);
+    }
+
+    if (removeBtn) {
+        removeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadedPhotoFile = null;
+            input.value = '';
+            if (thumb) thumb.src = 'assets/aishu_1.png';
+            activeSurpriseState.photoUrl = 'assets/aishu_1.png';
+            showToast("Photo reset to default 🌸");
+        });
+    }
 }
 
 // --- 2. POPUP WISH EXPERIENCE CONTROLLER ---
@@ -217,9 +260,29 @@ function goToStep(stepIndex) {
     // Trigger celebration effects on Reveal step
     if (stepIndex === 5) {
         launchCelebrationConfetti();
+        const revMsg = document.getElementById('reveal-message');
+        if (revMsg && activeSurpriseState.message) {
+            typewriteText(revMsg, `"${activeSurpriseState.message}"`);
+        }
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function typewriteText(element, text, speed = 25) {
+    if (!element) return;
+    if (element._twInterval) clearInterval(element._twInterval);
+    element.textContent = '';
+    let idx = 0;
+    element._twInterval = setInterval(() => {
+        if (idx < text.length) {
+            element.textContent += text.charAt(idx);
+            idx++;
+        } else {
+            clearInterval(element._twInterval);
+            element._twInterval = null;
+        }
+    }, speed);
 }
 
 function nextWishCard() {

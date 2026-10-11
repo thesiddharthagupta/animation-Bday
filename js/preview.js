@@ -144,9 +144,29 @@ function pGoToStep(step) {
 
     if (step === 5) {
         launchPreviewConfetti();
+        const revMsg = document.getElementById('preveal-message');
+        if (revMsg && pCardData && pCardData.message) {
+            typewritePreviewText(revMsg, `"${pCardData.message}"`);
+        }
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function typewritePreviewText(element, text, speed = 25) {
+    if (!element) return;
+    if (element._twInterval) clearInterval(element._twInterval);
+    element.textContent = '';
+    let idx = 0;
+    element._twInterval = setInterval(() => {
+        if (idx < text.length) {
+            element.textContent += text.charAt(idx);
+            idx++;
+        } else {
+            clearInterval(element._twInterval);
+            element._twInterval = null;
+        }
+    }, speed);
 }
 
 function pNextWish() {

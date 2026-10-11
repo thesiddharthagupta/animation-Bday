@@ -9,7 +9,7 @@ const SUPABASE_CONFIG = {
     URL: 'https://YOUR_PROJECT_ID.supabase.co',
     ANON_KEY: 'YOUR_SUPABASE_ANON_KEY',
     TABLE_NAME: 'birthday_cards',
-    STORAGE_BUCKET: 'birthday-photos'
+    STORAGE_BUCKET: 'birthday-uploads'
 };
 
 let supabaseClient = null;
@@ -113,7 +113,8 @@ async function saveCardToDatabase(cardData) {
                 mascot: cardData.mascot,
                 photo_url: cardData.photoUrl,
                 music_url: cardData.musicUrl,
-                is_private: cardData.isPrivate,
+                privacy: cardData.isPrivate ? 'private' : 'public',
+                wishes: cardData.wishes || null,
                 created_at: new Date().toISOString()
             };
 

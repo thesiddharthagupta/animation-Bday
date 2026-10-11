@@ -1,22 +1,411 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Birthday Magic ✨ | AI Surprise Generator</title>
+    <title>BirthdayBloom ✨ | Create Magical Birthday Wishes</title>
+    <meta name="description" content="Turn your feelings into a beautiful animated birthday surprise with interactive popup wishes, kawaii mascots, and celebration magic!">
+
+    <!-- Google Fonts: Poppins, Quicksand, Sacramento -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&family=Sacramento&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- Supabase Client JS (Backend Only) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- QRCode JS Library for local QR code generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <script>
-        // Check for ID and redirect if needed
+        // If loaded with a card ID, forward to preview.html
         const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('id');
-        if (id) {
-            window.location.href = `preview.html?id=${id}`;
-        } else {
-            window.location.href = 'create.html';
+        if (urlParams.get('id') || urlParams.get('d')) {
+            window.location.replace(`preview.html${window.location.search}`);
         }
     </script>
 </head>
-<body style="background: #111; display: flex; align-items: center; justify-content: center; height: 100vh;">
-    <div class="loader"></div>
+
+<body data-theme="dreamy">
+    <!-- Ambient Background Lighting & Particles -->
+    <div class="bg-orb bg-orb-1" aria-hidden="true"></div>
+    <div class="bg-orb bg-orb-2" aria-hidden="true"></div>
+    <div class="bg-orb bg-orb-3" aria-hidden="true"></div>
+    <div id="particles-container" class="bg-particles" aria-hidden="true"></div>
+    <div id="confetti-container" aria-hidden="true"></div>
+
+    <!-- Phone App Frame Container -->
+    <div class="app-viewport">
+        <!-- Top App Bar -->
+        <header class="app-header">
+            <div class="brand-logo" onclick="resetToCreateScreen()">
+                <span class="brand-icon">🌸</span>
+                <span class="brand-text">BirthdayBloom</span>
+            </div>
+            <div class="header-actions">
+                <button class="header-icon-btn" id="header-music-btn" title="Toggle Music" aria-label="Music">
+                    <span>🎵</span>
+                </button>
+                <button class="header-icon-btn" id="header-menu-btn" title="Menu" aria-label="Menu" onclick="toggleMenuModal()">
+                    <span>☰</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- ==============================================
+             SCREEN 1: CREATE (1. Upload / Form Screen)
+             ============================================== -->
+        <main class="screen-view active" id="screen-create">
+            <div class="screen-header">
+                <h1 class="screen-title">Create Birthday Magic ✨</h1>
+                <p class="screen-subtitle">Turn your feelings into a beautiful animated surprise 💕</p>
+            </div>
+
+            <form id="form-create" class="glass-form-card" novalidate>
+                <!-- Grid 2: Recipient Name & Nickname -->
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="input-name">Recipient Name *</label>
+                        <input type="text" id="input-name" placeholder="Aarya" value="Aarya" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-nickname">Nickname (optional)</label>
+                        <input type="text" id="input-nickname" placeholder="Aaryu" value="Aaryu" autocomplete="off">
+                    </div>
+                </div>
+
+                <!-- Grid 2: Relationship & Birthday Date -->
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="select-relationship">Relationship</label>
+                        <div class="custom-select-wrapper">
+                            <select id="select-relationship">
+                                <option value="bestie" selected>Best Friend 👯‍♀️</option>
+                                <option value="friend">Friend 🌸</option>
+                                <option value="girlfriend">Girlfriend ❤️</option>
+                                <option value="boyfriend">Boyfriend 💖</option>
+                                <option value="sister">Sister 🎀</option>
+                                <option value="brother">Brother 🚀</option>
+                                <option value="crush">Crush 🙈</option>
+                                <option value="family">Family 🏡</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-date">Birthday Date</label>
+                        <input type="date" id="input-date" value="2025-05-24">
+                    </div>
+                </div>
+
+                <!-- Custom Message with Character Counter (50/200 style) -->
+                <div class="form-group">
+                    <div class="label-row">
+                        <label for="input-message">Your Message (optional)</label>
+                        <span class="char-count" id="char-counter">50/200</span>
+                    </div>
+                    <textarea id="input-message" maxlength="200" rows="3" placeholder="Wishing you a day as special as you are! Stay happy always! 💕">Wishing you a day as special as you are! Stay happy always! 💕</textarea>
+                </div>
+
+                <!-- Choose a Theme -->
+                <div class="custom-section">
+                    <label class="section-label">👑 Choose a Theme</label>
+                    <div class="theme-grid-4">
+                        <div class="theme-chip active" data-theme="dreamy">
+                            <span class="theme-chip-icon">✨</span>
+                            <span class="theme-chip-name">Dreamy</span>
+                        </div>
+                        <div class="theme-chip" data-theme="elegant">
+                            <span class="theme-chip-icon">👑</span>
+                            <span class="theme-chip-name">Elegant</span>
+                        </div>
+                        <div class="theme-chip" data-theme="cute">
+                            <span class="theme-chip-icon">🌸</span>
+                            <span class="theme-chip-name">Cute</span>
+                        </div>
+                        <div class="theme-chip" data-theme="starry">
+                            <span class="theme-chip-icon">🌟</span>
+                            <span class="theme-chip-name">Starry</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Choose a Mascot -->
+                <div class="custom-section">
+                    <label class="section-label">🐾 Choose a Mascot</label>
+                    <div class="mascot-grid-4">
+                        <div class="mascot-avatar-card active" data-mascot="cat" title="Kitty">
+                            <div class="avatar-circle">🐱</div>
+                            <span>Kitty</span>
+                        </div>
+                        <div class="mascot-avatar-card" data-mascot="bunny" title="Bunny">
+                            <div class="avatar-circle">🐰</div>
+                            <span>Bunny</span>
+                        </div>
+                        <div class="mascot-avatar-card" data-mascot="panda" title="Panda">
+                            <div class="avatar-circle">🐼</div>
+                            <span>Panda</span>
+                        </div>
+                        <div class="mascot-avatar-card" data-mascot="dog" title="Puppy">
+                            <div class="avatar-circle">🐶</div>
+                            <span>Puppy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Their Photo -->
+                <div class="custom-section">
+                    <label class="section-label">📷 Upload Their Photo</label>
+                    <div class="photo-upload-dropzone" id="photo-dropzone">
+                        <input type="file" id="file-photo" accept="image/*" class="file-input-hidden">
+                        <div class="dropzone-text-group">
+                            <span class="dropzone-icon">📤</span>
+                            <div>
+                                <p class="dropzone-main">Drag & drop a photo here</p>
+                                <p class="dropzone-sub">or tap to browse (JPG, PNG up to 5MB)</p>
+                            </div>
+                        </div>
+                        <div class="dropzone-thumb-box">
+                            <img src="assets/aishu_1.png" alt="Uploaded Thumbnail" id="photo-thumb-img" class="dropzone-thumb">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Primary CTA: Generate Birthday Surprise -->
+                <button type="submit" class="glow-btn primary-cta" id="btn-generate-surprise" style="margin-top: 10px;">
+                    <span>🪄 Generate Surprise ➔</span>
+                </button>
+            </form>
+        </main>
+
+        <!-- ==============================================
+             POPUP WISH EXPERIENCE (Screens 2, 3, 4, 5)
+             ============================================== -->
+        <main class="screen-view hidden" id="screen-popup-flow">
+            <!-- Stepper Tabs Bar (Connecting Track & Dots) -->
+            <div class="popup-stepper-tabs" id="popup-stepper-tabs">
+                <div class="stepper-track-line"></div>
+                <button class="step-tab-btn active" data-step="1">
+                    <span class="tab-dot"></span>
+                    <span class="tab-label">Intro</span>
+                </button>
+                <button class="step-tab-btn" data-step="2">
+                    <span class="tab-dot"></span>
+                    <span class="tab-label">Wish 1</span>
+                </button>
+                <button class="step-tab-btn" data-step="3">
+                    <span class="tab-dot"></span>
+                    <span class="tab-label">Wish 2</span>
+                </button>
+                <button class="step-tab-btn" data-step="4">
+                    <span class="tab-dot"></span>
+                    <span class="tab-label">Memory</span>
+                </button>
+                <button class="step-tab-btn" data-step="5">
+                    <span class="tab-dot"></span>
+                    <span class="tab-label">Reveal</span>
+                </button>
+            </div>
+
+            <!-- Popup Card Stage -->
+            <div class="popup-stage" id="popup-stage">
+                <!-- STEP 1: INTRO (3D Stacked Cards) -->
+                <div class="popup-card-layer active" id="card-step-1">
+                    <div class="stacked-card-deck">
+                        <div class="deck-shadow-card deck-3"></div>
+                        <div class="deck-shadow-card deck-2"></div>
+                        <div class="glass-card main-popup-card">
+                            <div class="popup-mascot-box">
+                                <img src="assets/cat_gift.png" alt="Mascot with heart" class="popup-mascot-img" id="step-1-mascot">
+                            </div>
+                            <h2 class="popup-headline" id="step-1-headline">Hey Aarya ✨</h2>
+                            <p class="popup-body-text" id="step-1-body">Small wishes for a big-hearted you 💕</p>
+                            
+                            <div class="carousel-nav-row">
+                                <button class="nav-arrow-btn" onclick="prevWishCard()">&lt;</button>
+                                <span class="page-indicator" id="page-indicator">Page 1 of 5</span>
+                                <button class="nav-arrow-btn" onclick="nextWishCard()">&gt;</button>
+                            </div>
+
+                            <button type="button" class="glow-btn" onclick="nextWishCard()">
+                                <span>Next Card ➔</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: WISH 1 (Magic Wishes) -->
+                <div class="popup-card-layer hidden" id="card-step-2">
+                    <div class="card-progress-badge">Wish 2 of 5</div>
+                    <div class="glass-card main-popup-card">
+                        <div class="popup-mascot-box">
+                            <img src="assets/cat_gift.png" alt="Mascot with heart" class="popup-mascot-img" id="step-2-mascot">
+                        </div>
+                        <h2 class="popup-headline">You make ordinary moments feel magical 💖</h2>
+                        <p class="popup-body-text">Thank you for bringing so much laughter, warmth, and genuine light into my world.</p>
+                        
+                        <button type="button" class="glow-btn" onclick="nextWishCard()">
+                            <span>Next Wish ➔</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: WISH 2 (Circular Photo Frame + Flower Lanterns) -->
+                <div class="popup-card-layer hidden" id="card-step-3">
+                    <div class="card-progress-badge">Wish 3 of 5</div>
+                    <div class="glass-card main-popup-card wish-card-3">
+                        <!-- Floral Lantern Visuals -->
+                        <div class="circular-photo-wrapper">
+                            <div class="golden-ring-glow"></div>
+                            <img src="assets/aishu_1.png" alt="Recipient Photo" class="circular-recipient-photo" id="step-3-photo">
+                            <div class="mascot-badge-peeking">
+                                <img src="assets/cat_gift.png" alt="Cat badge" class="badge-mini-cat" id="step-3-mascot">
+                            </div>
+                        </div>
+
+                        <h2 class="popup-headline" style="margin-top: 18px;">Your smile makes every moment brighter ✨</h2>
+                        <p class="popup-body-text" id="step-3-body">Having you as my best friend is the sweetest gift ever! 🌸</p>
+                        
+                        <button type="button" class="glow-btn" onclick="nextWishCard()">
+                            <span>Aww, Continue ➔</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 4: MEMORY / PLAYFUL MOVING NO BUTTON -->
+                <div class="popup-card-layer hidden" id="card-step-4">
+                    <div class="card-progress-badge">Wish 4 of 5</div>
+                    <div class="glass-card main-popup-card no-button-card">
+                        <!-- Peeking Winking Kitten at the Top of Card -->
+                        <div class="mascot-top-peeking">
+                            <div class="peeking-avatar-circle">
+                                <span class="peeking-avatar-emoji">🐱</span>
+                            </div>
+                            <div class="peeking-sparkles">✨</div>
+                        </div>
+
+                        <h2 class="popup-headline" style="margin-top: 26px;">One last question...</h2>
+                        <p class="popup-body-text">Are you ready for a special surprise? 💕</p>
+
+                        <div class="interactive-buttons-stage">
+                            <!-- Yes Button -->
+                            <button type="button" class="glow-btn" id="yes-btn" onclick="nextWishCard()">
+                                <span>Yes, I'm Ready! ✨</span>
+                            </button>
+
+                            <!-- Moving No / Never Button inside wrapper -->
+                            <div id="no-area" class="no-area-wrapper">
+                                <button type="button" id="no-btn" class="moving-no-button">
+                                    <span>Never</span>
+                                </button>
+                                <span class="moving-hint-tag" id="no-hint-tag">can't catch me 💨</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 5: REVEAL (Grand Celebration Reveal Screen) -->
+                <div class="popup-card-layer hidden" id="card-step-5">
+                    <div class="reveal-celebration-container">
+                        <div class="reveal-crown-icon">👑</div>
+                        <h1 class="calligraphy-title" id="reveal-title">Happy Birthday, Aarya!</h1>
+
+                        <!-- Golden Circular Photo Frame with Cake Mascot & Balloons -->
+                        <div class="reveal-photo-stage">
+                            <div class="golden-balloon-cluster left">🎈</div>
+                            <div class="golden-balloon-cluster right">🎈</div>
+                            
+                            <div class="reveal-ring-container">
+                                <img src="assets/aishu_1.png" alt="Birthday Star" class="reveal-star-photo" id="reveal-photo">
+                            </div>
+
+                            <div class="reveal-cake-mascot-box">
+                                <img src="assets/preview_hero.jpg" alt="Cake mascot" class="reveal-cake-img" id="reveal-cake-img">
+                            </div>
+                        </div>
+
+                        <!-- Glass Message Plaque -->
+                        <div class="glass-message-plaque">
+                            <p class="plaque-message-text" id="reveal-message">
+                                "May your days be as bright, beautiful and magical as you are! Here's to more laughter, bigger dreams and a year full of happiness! 💕"
+                            </p>
+                        </div>
+
+                        <!-- Audio Player Bar (0:00 / 3:28) -->
+                        <div class="reveal-audio-bar">
+                            <button class="audio-play-icon" id="reveal-audio-toggle">▶</button>
+                            <div class="audio-track-info">
+                                <span class="audio-title">A Birthday Song for You</span>
+                                <div class="audio-progress-track">
+                                    <div class="audio-progress-bar" id="reveal-audio-bar"></div>
+                                </div>
+                            </div>
+                            <span class="audio-time" id="reveal-audio-time">0:00 / 3:28</span>
+                            <span class="audio-volume-icon">🔊</span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="reveal-action-buttons">
+                            <button type="button" class="action-pill-btn" onclick="goToStep(1)">
+                                <span>Replay 🔄</span>
+                            </button>
+                            <button type="button" class="glow-btn" style="flex: 1;" onclick="openShareModal()">
+                                <span>Share ↗</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Share & QR Modal -->
+    <div class="bb-modal-overlay hidden" id="share-modal">
+        <div class="bb-modal-card glass-card">
+            <button class="modal-close-btn" onclick="closeShareModal()">&times;</button>
+            <div class="modal-header">
+                <span class="modal-badge">🎁 Your Magic Link is Ready</span>
+                <h3 id="modal-card-title">Share the Birthday Surprise</h3>
+                <p>Anyone who opens this link gets the magical popup experience!</p>
+            </div>
+            
+            <div class="share-link-input-wrapper">
+                <span class="link-prefix-icon">🔗</span>
+                <input type="text" id="modal-share-link" readonly value="">
+                <button class="copy-icon-btn" onclick="copyShareLink()" title="Copy Link">📋</button>
+            </div>
+
+            <div class="qr-code-wrapper" id="modal-qr-target" style="margin-top: 14px;"></div>
+
+            <div class="modal-actions" style="margin-top: 12px;">
+                <button class="glow-btn" onclick="copyShareLink()">Copy Link 📋</button>
+                <button class="action-pill-btn" onclick="openPreviewInNewTab()">Open in New Tab ↗</button>
+            </div>
+
+            <div class="social-share-strip" style="margin-top: 14px;">
+                <span class="social-strip-title">Instant Share:</span>
+                <div class="social-icons-row">
+                    <a href="#" id="modal-wa-btn" target="_blank" class="social-circle-btn wa-btn" title="WhatsApp">
+                        <span>💬</span><span class="social-name">WhatsApp</span>
+                    </a>
+                    <a href="#" id="modal-tg-btn" target="_blank" class="social-circle-btn x-btn" title="Telegram">
+                        <span>✈️</span><span class="social-name">Telegram</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Music Audio -->
+    <audio id="bb-bg-music" loop preload="auto"></audio>
+
+    <!-- App Scripts -->
+    <script src="js/supabase.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/create.js"></script>
 </body>
+
 </html>

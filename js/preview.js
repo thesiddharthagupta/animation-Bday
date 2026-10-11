@@ -1,190 +1,222 @@
 /**
- * Preview Viewer Logic
+ * BirthdayBloom — Standalone Recipient Popup Preview Controller
+ * Manages the full 5-stage wish popup journey, moving No button, and grand Reveal
  */
 
-let pages = [];
-let currentIdx = 0;
-let musicOn = false;
+let pCurrentStep = 1;
+let pDodgeCount = 0;
+let pCardData = null;
 
-const viewerView = document.getElementById('viewer-view');
-const errorView = document.getElementById('error-view');
-const contentArea = document.getElementById('content');
-const progressBar = document.getElementById('progress');
-const bgMusic = document.getElementById('bg-music');
-const clickSfx = document.getElementById('click-sound');
+document.addEventListener('DOMContentLoaded', async () => {
+    initAmbientDecor();
+    await initStandalonePreview();
+    initPreviewMovingNoButton();
+});
 
-async function init() {
+async function initStandalonePreview() {
     const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
+    const cardId = urlParams.get('id');
+    const encodedPayload = urlParams.get('d');
 
-    if (!id) {
-        window.location.href = 'create.html';
-        return;
-    }
+    const loadingEl = document.getElementById('preview-loading');
+    const errorEl = document.getElementById('preview-error');
+    const sceneEl = document.getElementById('preview-scene');
 
-    let data = null;
+    try {
+        let data = null;
 
-    // 1. Try LocalStorage (Fastest for the creator)
-    const localData = localStorage.getItem(`birthday-${id}`);
-    if (localData) {
-        data = JSON.parse(localData);
-        console.log("Loaded from LocalStorage");
-    }
-
-    // 2. Try Supabase (If not in local or if shared with friend)
-    if (!data && isCloudReady && _supabase) {
-        try {
-            const { data: record, error } = await _supabase
-                .from('surprises')
-                .select('data')
-                .eq('id', id)
-                .single();
-            if (record) data = record.data;
-            console.log("Loaded from Supabase");
-        } catch (err) {
-            console.error("Supabase Load Failed:", err.message);
+        if (cardId || encodedPayload) {
+            if (window.SupabaseBackend) {
+                data = await window.SupabaseBackend.loadCard(cardId, encodedPayload);
+            }
         }
-    }
 
-    if (data) {
-        setupViewer(data);
-    } else {
-        errorView.classList.remove('hidden');
-    }
+        if (!data || !data.name) {
+            const lastId = localStorage.getItem('birthdaybloom_last_id');
+            const myCards = JSON.parse(localStorage.getItem('birthdaybloom_my_cards') || '[]');
 
-    createFloatingDecor();
-    createParticles();
-}
-
-function setupViewer(d) {
-    document.body.setAttribute('data-theme', d.theme);
-    
-    // Auto-generate story using the Smart Engine
-    pages = generateSmartStory(d);
-    
-    if (d.music) bgMusic.src = d.music;
-    else bgMusic.src = "https://raw.githubusercontent.com/Adit-Kumbhare/Happy-Birthday/main/happy-birthday.mp3";
-
-    viewerView.classList.remove('hidden');
-    renderPage(0);
-}
-
-
-
-function renderPage(idx) {
-    const page = pages[idx];
-    progressBar.style.width = `${((idx + 1) / pages.length) * 100}%`;
-    contentArea.innerHTML = '';
-    contentArea.style.opacity = '0';
-
-    setTimeout(() => {
-        if (page.type === 'post') renderPost(page);
-        else if (page.type === 'message') renderMessage(page);
-        else renderStandard(page);
-        contentArea.style.opacity = '1';
-    }, 350);
-}
-
-function renderStandard(page) {
-    const img = document.createElement('img');
-    img.src = page.image;
-    img.className = 'cat-image';
-    contentArea.appendChild(img);
-
-    const h1 = document.createElement('h1');
-    h1.innerText = page.text;
-    contentArea.appendChild(h1);
-
-    const group = document.createElement('div');
-    group.className = 'btn-group';
-
-    page.buttons.forEach(b => {
-        const btn = document.createElement('button');
-        btn.innerText = b.text;
-        if (b.id) btn.id = b.id;
-        btn.onclick = () => {
-            playSfx();
-            if (!musicOn) { bgMusic.play().catch(() => {}); musicOn = true; }
-            if (b.action === 'next') renderPage(++currentIdx);
-        };
-        if (b.action === 'dodge') {
-            btn.onmouseover = () => dodge(btn);
-            btn.style.transition = 'left 0.2s ease, top 0.2s ease';
+            if (lastId && localStorage.getItem(`birthdaybloom_${lastId}`)) {
+                data = JSON.parse(localStorage.getItem(`birthdaybloom_${lastId}`));
+            } else if (myCards.length > 0) {
+                data = myCards[0];
+            } else {
+                // Default showcase celebration
+                data = {
+                    id: 'DEMO',
+                    name: 'Aarya',
+                    nickname: 'Aaryu',
+                    relationship: 'bestie',
+                    date: '2025-05-24',
+                    message: 'May your days be as bright, beautiful and magical as you are! Here\'s to more laughter, bigger dreams and a year full of happiness! 💕',
+                    theme: 'dreamy',
+                    mascot: 'cat',
+                    photoUrl: 'assets/aishu_1.png'
+                };
+            }
         }
-        group.appendChild(btn);
-    });
-    contentArea.appendChild(group);
-}
 
-function renderMessage(page) {
-    const container = document.createElement('div');
-    container.className = 'message-slide';
-    const p = document.createElement('p');
-    p.id = 'typewriter-text';
-    container.appendChild(p);
-    const btn = document.createElement('button');
-    btn.innerText = "Next 🌸";
-    btn.style.opacity = '0';
-    btn.onclick = () => { playSfx(); renderPage(++currentIdx); };
-    container.appendChild(btn);
-    contentArea.appendChild(container);
-
-    let i = 0;
-    function typeWriter() {
-        if (i < page.content.length) {
-            p.innerText += page.content.charAt(i);
-            i++;
-            setTimeout(typeWriter, 40);
+        if (data && data.name) {
+            pCardData = data;
+            renderRecipientSurprise(data);
         } else {
-            btn.style.opacity = '1';
-            btn.style.transition = 'opacity 0.5s ease';
+            loadingEl?.classList.add('hidden');
+            errorEl?.classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error("Preview load error:", err);
+        loadingEl?.classList.add('hidden');
+        errorEl?.classList.remove('hidden');
+    }
+}
+
+function renderRecipientSurprise(data) {
+    document.body.setAttribute('data-theme', data.theme || 'dreamy');
+
+    document.getElementById('preview-loading')?.classList.add('hidden');
+    document.getElementById('preview-error')?.classList.add('hidden');
+    const sceneEl = document.getElementById('preview-scene');
+    if (sceneEl) {
+        sceneEl.classList.remove('hidden');
+        sceneEl.classList.add('active', 'animate-pop');
+    }
+
+    const displayName = data.nickname || data.name || "Aarya";
+
+    // Step 1
+    const s1Head = document.getElementById('pstep-1-headline');
+    if (s1Head) s1Head.innerText = `Hey ${displayName} ✨`;
+
+    // Step 3 (Wish 2) photo
+    const s3Photo = document.getElementById('pstep-3-photo');
+    const s3Body = document.getElementById('pstep-3-body');
+    if (s3Photo && data.photoUrl) s3Photo.src = data.photoUrl;
+    if (s3Body) s3Body.innerText = `Having you as my ${data.relationship || 'best friend'} is the sweetest gift ever! 🌸`;
+
+    // Step 5 (Reveal)
+    const revTitle = document.getElementById('preveal-title');
+    const revPhoto = document.getElementById('preveal-photo');
+    const revMsg = document.getElementById('preveal-message');
+    if (revTitle) revTitle.innerText = `Happy Birthday, ${displayName}!`;
+    if (revPhoto && data.photoUrl) revPhoto.src = data.photoUrl;
+    if (revMsg && data.message) revMsg.innerText = `"${data.message}"`;
+
+    pGoToStep(1);
+
+    // Start background music box chime
+    setTimeout(() => {
+        window.musicBoxSynth?.playHappyBirthday();
+    }, 500);
+}
+
+function pGoToStep(step) {
+    pCurrentStep = step;
+
+    // Update Stepper Tabs
+    const tabs = document.querySelectorAll('#preview-stepper-tabs .step-tab-btn');
+    tabs.forEach(tab => {
+        const s = parseInt(tab.dataset.step);
+        if (s === step) {
+            tab.classList.add('active');
+        } else if (s < step) {
+            tab.classList.add('passed');
+            tab.classList.remove('active');
+        } else {
+            tab.classList.remove('active', 'passed');
+        }
+    });
+
+    // Switch Visible Card Layer
+    for (let i = 1; i <= 5; i++) {
+        const card = document.getElementById(`pcard-step-${i}`);
+        if (card) {
+            if (i === step) {
+                card.classList.remove('hidden');
+                card.classList.add('active', 'animate-pop');
+            } else {
+                card.classList.add('hidden');
+                card.classList.remove('active');
+            }
         }
     }
-    typeWriter();
+
+    const ind = document.getElementById('p-page-indicator');
+    if (ind) ind.innerText = `Page ${step} of 5`;
+
+    if (step === 5) {
+        launchPreviewConfetti();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function renderPost(page) {
-    const post = document.createElement('div');
-    post.className = 'birthday-post';
-    post.innerHTML = `
-        <div class="post-header">
-            <div class="avatar">${page.user[0]}</div>
-            <div class="username">${page.user}</div>
-        </div>
-        <img src="${page.image}" class="post-img">
-        <div class="post-info">
-            <div class="post-actions">❤️ 💬 🚀</div>
-            <span class="likes">${page.likes} likes</span>
-            <div class="caption">${page.caption}</div>
-        </div>
-    `;
-    contentArea.appendChild(post);
-    startConfetti();
+function pNextWish() {
+    if (pCurrentStep < 5) pGoToStep(pCurrentStep + 1);
 }
 
-function dodge(btn) {
-    const x = Math.random() * (window.innerWidth - btn.offsetWidth - 40);
-    const y = Math.random() * (window.innerHeight - btn.offsetHeight - 40);
-    btn.style.position = 'fixed';
-    btn.style.left = `${Math.max(20, x)}px`;
-    btn.style.top = `${Math.max(20, y)}px`;
-    btn.style.zIndex = '1000';
+function pPrevWish() {
+    if (pCurrentStep > 1) pGoToStep(pCurrentStep - 1);
 }
 
-function playSfx() { clickSfx.currentTime = 0; clickSfx.play().catch(() => {}); }
+// Bind tabs click
+document.addEventListener('click', (e) => {
+    const tabBtn = e.target.closest('#preview-stepper-tabs .step-tab-btn');
+    if (tabBtn) {
+        const step = parseInt(tabBtn.dataset.step);
+        pGoToStep(step);
+    }
+});
 
-function startConfetti() {
+// --- MOVING NO BUTTON FOR PREVIEW ---
+function initPreviewMovingNoButton() {
+    const noBtn = document.querySelector("#preview-scene #no-btn");
+    const hintTag = document.querySelector("#preview-scene #p-no-hint-tag");
+
+    if (!noBtn) return;
+
+    function moveNoButton() {
+        pDodgeCount++;
+        const padding = 24;
+        const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+        const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+
+        noBtn.style.position = "fixed";
+        noBtn.style.left = Math.max(padding, Math.random() * maxX) + "px";
+        noBtn.style.top = Math.max(padding, Math.random() * maxY) + "px";
+        noBtn.style.zIndex = "999";
+
+        const quips = ["can't catch me 💨", "too slow! 😜", "nope! 🙈", "just say yes! 💕", "never gonna happen! 🎂"];
+        if (hintTag) {
+            hintTag.innerText = quips[pDodgeCount % quips.length];
+        }
+    }
+
+    noBtn.addEventListener("mouseenter", moveNoButton);
+    noBtn.addEventListener("mouseover", moveNoButton);
+    noBtn.addEventListener("touchstart", function (e) {
+        e.preventDefault();
+        moveNoButton();
+    }, { passive: false });
+}
+
+function launchPreviewConfetti() {
     const container = document.getElementById('confetti-container');
-    for (let i = 0; i < 100; i++) {
+    if (!container) return;
+    container.innerHTML = '';
+
+    const colors = ['#ff2a85', '#b388ff', '#ffd166', '#00f5d4', '#ff66c4', '#ffffff'];
+    const shapes = ['rect', 'star', 'circle'];
+
+    for (let i = 0; i < 90; i++) {
         setTimeout(() => {
             const c = document.createElement('div');
-            c.className = 'confetti';
-            c.style.left = Math.random() * 100 + 'vw';
-            c.style.backgroundColor = ['#ff2d78', '#c77dff', '#ffd700'][Math.floor(Math.random() * 3)];
+            const shape = shapes[Math.floor(Math.random() * shapes.length)];
+            c.className = `confetti confetti-${shape}`;
+            c.style.left = `${Math.random() * 100}vw`;
+            c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            c.style.animationDuration = `${Math.random() * 2.5 + 2.5}s`;
+            c.style.transform = `rotate(${Math.random() * 360}deg)`;
             container.appendChild(c);
-            setTimeout(() => c.remove(), 5000);
-        }, i * 25);
+            setTimeout(() => c.remove(), 5500);
+        }, i * 35);
     }
 }
-
-window.onload = init;

@@ -4,53 +4,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Birthday Surprise! 🎂✨</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&family=Sacramento&display=swap"
-        rel="stylesheet">
+    <title>A Special Birthday Wish For You! 🎂✨ | BirthdayBloom</title>
+    <meta name="description" content="An interactive magical birthday surprise created just for you on BirthdayBloom!">
+
+    <!-- Google Fonts: Poppins, Quicksand, Sacramento -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&family=Sacramento&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- Supabase Client JS (Backend Only) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
-<body data-theme="cute">
-    <div class="bg-orb bg-orb-1"></div>
-    <div class="bg-orb bg-orb-2"></div>
-    <div class="bg-orb bg-orb-3"></div>
-    <div id="particles-container" class="bg-particles"></div>
-    <div id="confetti-container"></div>
+<body data-theme="dreamy">
+    <!-- Ambient Background Lighting & Particles -->
+    <div class="bg-orb bg-orb-1" aria-hidden="true"></div>
+    <div class="bg-orb bg-orb-2" aria-hidden="true"></div>
+    <div class="bg-orb bg-orb-3" aria-hidden="true"></div>
+    <div id="particles-container" class="bg-particles" aria-hidden="true"></div>
+    <div id="confetti-container" aria-hidden="true"></div>
 
-    <div class="main-container">
-        <!-- Error State -->
-        <div id="error-view" class="glass-card hidden">
-            <h1 style="font-size: 3rem;">🎁</h1>
-            <h2>Surprise Not Found!</h2>
-            <p style="color: var(--text-secondary); margin: 15px 0;">This surprise link may have expired or is invalid.</p>
-            <a href="create.html" class="social-btn" style="background: var(--primary); display: inline-flex; justify-content: center; text-decoration: none;">Create a New Surprise ✨</a>
+    <!-- Phone App Frame Container -->
+    <div class="app-viewport">
+        <!-- Top App Bar -->
+        <header class="app-header">
+            <a href="index.html" class="brand-logo" style="text-decoration: none;">
+                <span class="brand-icon">🌸</span>
+                <span class="brand-text">BirthdayBloom</span>
+            </a>
+            <div class="header-actions">
+                <button class="header-icon-btn playing" id="preview-music-toggle" title="Toggle Music">
+                    <span>🎵</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Loading State -->
+        <div id="preview-loading" class="preview-center-box">
+            <div class="magic-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-sparkle">✨</div>
+            </div>
+            <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.3rem;">Opening your birthday magic...</h2>
+            <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 6px;">Preparing sparkles and surprises 💖</p>
         </div>
 
-        <!-- Viewer View -->
-        <div id="viewer-view" class="hidden">
-            <div class="heart-glow"></div>
-            <div class="glass-card" id="card">
-                <div class="progress-container">
-                    <div class="progress-bar" id="progress"></div>
-                </div>
-                <div id="content">
-                    <div class="loader-container">
-                        <div class="loader"></div>
-                        <p>Opening your gift...</p>
-                    </div>
+        <!-- Error Screen -->
+        <div id="preview-error" class="preview-center-box hidden">
+            <div class="glass-card error-glass-card">
+                <img src="assets/cat_confused.png" alt="Card Not Found" class="error-mascot-img">
+                <h2 class="error-title">Surprise Not Found! 🎁</h2>
+                <p class="error-desc" id="preview-error-reason">This birthday card link may be incomplete or has expired.</p>
+                <div style="margin-top: 22px;">
+                    <a href="index.html" class="glow-btn primary-cta" style="text-decoration: none; display: inline-flex;">
+                        <span>✨ Create a Magical Card</span>
+                    </a>
                 </div>
             </div>
         </div>
+
+        <!-- ==============================================
+             POPUP WISH EXPERIENCE (Screens 2, 3, 4, 5)
+             ============================================== -->
+        <main class="screen-view hidden" id="preview-scene">
+            <!-- Stepper Tabs Bar (Connecting Track & Dots) -->
+            <div class="popup-stepper-tabs" id="preview-stepper-tabs">
+                <div class="stepper-track-line"></div>
+                <button class="step-tab-btn active" data-step="1">
+                    <span class="tab-dot"></span>
+                    <span class="tab-label">Intro</span>
+                </button>
+                <button class="step-tab-btn" data-step="2">
+                    <span class="tab-dot"></span>
+                    <span class="tab-label">Wish 1</span>
+                </button>
+                <button class="step-tab-btn" data-step="3">
+                    <span class="tab-dot"></span>
+                    <span class="tab-label">Wish 2</span>
+                </button>
+                <button class="step-tab-btn" data-step="4">
+                    <span class="tab-dot"></span>
+                    <span class="tab-label">Memory</span>
+                </button>
+                <button class="step-tab-btn" data-step="5">
+                    <span class="tab-dot"></span>
+                    <span class="tab-label">Reveal</span>
+                </button>
+            </div>
+
+            <!-- Popup Card Stage -->
+            <div class="popup-stage" id="preview-popup-stage">
+                <!-- STEP 1: INTRO (3D Stacked Cards) -->
+                <div class="popup-card-layer active" id="pcard-step-1">
+                    <div class="stacked-card-deck">
+                        <div class="deck-shadow-card deck-3"></div>
+                        <div class="deck-shadow-card deck-2"></div>
+                        <div class="glass-card main-popup-card">
+                            <div class="popup-mascot-box">
+                                <img src="assets/cat_gift.png" alt="Mascot with heart" class="popup-mascot-img" id="pstep-1-mascot">
+                            </div>
+                            <h2 class="popup-headline" id="pstep-1-headline">Hey Aarya ✨</h2>
+                            <p class="popup-body-text" id="pstep-1-body">Small wishes for a big-hearted you 💕</p>
+                            
+                            <div class="carousel-nav-row">
+                                <button class="nav-arrow-btn" onclick="pPrevWish()">&lt;</button>
+                                <span class="page-indicator" id="p-page-indicator">Page 1 of 5</span>
+                                <button class="nav-arrow-btn" onclick="pNextWish()">&gt;</button>
+                            </div>
+
+                            <button type="button" class="glow-btn" onclick="pNextWish()">
+                                <span>Next Card ➔</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: WISH 1 -->
+                <div class="popup-card-layer hidden" id="pcard-step-2">
+                    <div class="card-progress-badge">Wish 2 of 5</div>
+                    <div class="glass-card main-popup-card">
+                        <div class="popup-mascot-box">
+                            <img src="assets/cat_gift.png" alt="Mascot with heart" class="popup-mascot-img" id="pstep-2-mascot">
+                        </div>
+                        <h2 class="popup-headline">You make ordinary moments feel magical 💖</h2>
+                        <p class="popup-body-text">Thank you for bringing so much laughter, warmth, and genuine light into my world.</p>
+                        
+                        <button type="button" class="glow-btn" onclick="pNextWish()">
+                            <span>Next Wish ➔</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: WISH 2 (Circular Photo Frame + Flower Lanterns) -->
+                <div class="popup-card-layer hidden" id="pcard-step-3">
+                    <div class="card-progress-badge">Wish 3 of 5</div>
+                    <div class="glass-card main-popup-card wish-card-3">
+                        <div class="circular-photo-wrapper">
+                            <div class="golden-ring-glow"></div>
+                            <img src="assets/aishu_1.png" alt="Recipient Photo" class="circular-recipient-photo" id="pstep-3-photo">
+                            <div class="mascot-badge-peeking">
+                                <img src="assets/cat_gift.png" alt="Cat badge" class="badge-mini-cat" id="pstep-3-mascot">
+                            </div>
+                        </div>
+
+                        <h2 class="popup-headline" style="margin-top: 18px;">Your smile makes every moment brighter ✨</h2>
+                        <p class="popup-body-text" id="pstep-3-body">Having you as my best friend is the sweetest gift ever! 🌸</p>
+                        
+                        <button type="button" class="glow-btn" onclick="pNextWish()">
+                            <span>Aww, Continue ➔</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 4: MEMORY / PLAYFUL MOVING NO BUTTON -->
+                <div class="popup-card-layer hidden" id="pcard-step-4">
+                    <div class="card-progress-badge">Wish 4 of 5</div>
+                    <div class="glass-card main-popup-card no-button-card">
+                        <div class="mascot-top-peeking">
+                            <div class="peeking-avatar-circle">
+                                <span class="peeking-avatar-emoji">🐱</span>
+                            </div>
+                            <div class="peeking-sparkles">✨</div>
+                        </div>
+
+                        <h2 class="popup-headline" style="margin-top: 26px;">One last question...</h2>
+                        <p class="popup-body-text">Are you ready for a special surprise? 💕</p>
+
+                        <div class="interactive-buttons-stage">
+                            <button type="button" class="glow-btn" id="p-yes-btn" onclick="pNextWish()">
+                                <span>Yes, I'm Ready! ✨</span>
+                            </button>
+
+                            <!-- Moving No / Never button inside #no-area -->
+                            <div id="no-area" class="no-area-wrapper">
+                                <button type="button" id="no-btn" class="moving-no-button">
+                                    <span>Never</span>
+                                </button>
+                                <span class="moving-hint-tag" id="p-no-hint-tag">can't catch me 💨</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 5: REVEAL (Grand Celebration Reveal Screen) -->
+                <div class="popup-card-layer hidden" id="pcard-step-5">
+                    <div class="reveal-celebration-container">
+                        <div class="reveal-crown-icon">👑</div>
+                        <h1 class="calligraphy-title" id="preveal-title">Happy Birthday, Aarya!</h1>
+
+                        <div class="reveal-photo-stage">
+                            <div class="golden-balloon-cluster left">🎈</div>
+                            <div class="golden-balloon-cluster right">🎈</div>
+                            
+                            <div class="reveal-ring-container">
+                                <img src="assets/aishu_1.png" alt="Birthday Star" class="reveal-star-photo" id="preveal-photo">
+                            </div>
+
+                            <div class="reveal-cake-mascot-box">
+                                <img src="assets/preview_hero.jpg" alt="Cake mascot" class="reveal-cake-img" id="preveal-cake-img">
+                            </div>
+                        </div>
+
+                        <div class="glass-message-plaque">
+                            <p class="plaque-message-text" id="preveal-message">
+                                "May your days be as bright, beautiful and magical as you are! Here's to more laughter, bigger dreams and a year full of happiness! 💕"
+                            </p>
+                        </div>
+
+                        <div class="reveal-audio-bar">
+                            <button class="audio-play-icon" id="preveal-audio-toggle">▶</button>
+                            <div class="audio-track-info">
+                                <span class="audio-title">A Birthday Song for You</span>
+                                <div class="audio-progress-track">
+                                    <div class="audio-progress-bar" id="preveal-audio-bar"></div>
+                                </div>
+                            </div>
+                            <span class="audio-time" id="preveal-audio-time">0:00 / 3:28</span>
+                            <span class="audio-volume-icon">🔊</span>
+                        </div>
+
+                        <div class="reveal-action-buttons">
+                            <button type="button" class="action-pill-btn" onclick="pGoToStep(1)">
+                                <span>Replay 🔄</span>
+                            </button>
+                            <a href="index.html" class="glow-btn" style="flex: 1; text-decoration: none;">
+                                <span>✨ Make a Card</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- Audio -->
-    <audio id="bg-music" loop></audio>
-    <audio id="click-sound">
-        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
-    </audio>
+    <!-- Audio Element -->
+    <audio id="bb-preview-audio" loop preload="auto"></audio>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Scripts -->
+    <script src="js/supabase.js"></script>
     <script src="js/app.js"></script>
     <script src="js/engine.js"></script>
     <script src="js/preview.js"></script>
